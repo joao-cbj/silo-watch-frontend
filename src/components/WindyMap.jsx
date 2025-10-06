@@ -8,7 +8,7 @@ const WindyMap = ({ lat, lon }) => {
   const scriptsLoaded = useRef(false);
 
   // Coloque aqui sua API KEY do Windy
-  const WINDY_API_KEY = import.meta.env.VITE_API_WINDY_KEY;
+  const WINDY_API_KEY = import.meta.env.VITE_WINDY_API_KEY;
 
   useEffect(() => {
     // Previne múltiplas inicializações
