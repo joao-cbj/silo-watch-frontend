@@ -3,6 +3,8 @@ import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import SiloCard from '../components/SiloCard';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import WindyMap from "../components/WindyMap";
+
 
 const DashboardPage = () => {
   const [silos, setSilos] = useState([]);
@@ -37,19 +39,15 @@ const DashboardPage = () => {
   };
 
   const handleManualRefresh = async () => {
-    setLoading(true); // inicia animação
+    setLoading(true);
     await fetchData();
-    setLoading(false); // finaliza animação
+    setLoading(false);
   };
 
   useEffect(() => {
-    // Atualização inicial
     handleManualRefresh();
-
-    // Atualização automática a cada 30 segundos
     intervalRef.current = setInterval(handleManualRefresh, 30000);
 
-    // Limpa intervalo ao desmontar componente
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -76,7 +74,6 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Mensagem de erro */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex justify-between items-center">
             <span>{error}</span>
@@ -89,7 +86,6 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Loading state */}
         {loading && silos.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
@@ -98,7 +94,6 @@ const DashboardPage = () => {
             </div>
           </div>
         ) : silos.length === 0 ? (
-
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg mb-4">Nenhum silo cadastrado ainda</p>
             <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
@@ -107,20 +102,29 @@ const DashboardPage = () => {
             </button>
           </div>
         ) : (
-          // Grid de silos
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {silos.map(silo => (
-              <SiloCard 
-                key={silo._id || silo.dispositivo} 
-                silo={silo} 
-              />
-            ))}
+          <>
+            <div className="flex flex-wrap gap-3">
+              {silos.map(silo => (
+                <SiloCard 
+                  key={silo._id || silo.dispositivo} 
+                  silo={silo} 
+                />
+              ))}
 
-            <button className="flex flex-col items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors min-h-[200px]">
-              <PlusIcon className="h-12 w-12 mb-2" />
-              <span className="font-medium">Adicionar Novo Silo</span>
-            </button>
-          </div>
+              <button className="flex flex-col items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors h-[150px] w-[150px]">
+                <PlusIcon className="h-8 w-8 mb-1" />
+                <span className="font-medium text-xs">Adicionar Silo</span>
+              </button>
+            </div>
+
+            <div className="mt-8">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Mapa Climático</h3>
+              <WindyMap 
+                lat={silos[0]?.latitude || -8.0476} 
+                lon={silos[0]?.longitude || -34.8770} 
+              />
+            </div>
+          </>
         )}
       </main>
     </div>
