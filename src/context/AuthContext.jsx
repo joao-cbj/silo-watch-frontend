@@ -21,6 +21,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem('authToken');
+      const savedUser = localStorage.getItem('authUser');
+      
       if (token) {
         try {
           const response = await api.get('/api/auth/verificar');
@@ -29,6 +31,24 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           localStorage.removeItem('authToken');
           localStorage.removeItem('authUser');
+          
+          // Se tinha usuário salvo, use ele temporariamente
+          if (savedUser) {
+            try {
+              const parsedUser = JSON.parse(savedUser);
+              setUser(parsedUser);
+            } catch (e) {
+              console.error('Erro ao parsear usuário salvo:', e);
+            }
+          }
+        }
+      } else if (savedUser) {
+        // Se não tem token mas tem usuário salvo, use ele
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+        } catch (e) {
+          console.error('Erro ao parsear usuário salvo:', e);
         }
       }
       setLoading(false);
@@ -64,7 +84,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (newUserData) => {
-    const updatedUser = { ...user, ...newUserData };
+    // Garante que o _id sempre será mantido
+    const updatedUser = { 
+      ...user,           // Mantém todos os dados atuais (incluindo _id)
+      ...newUserData     // Sobrescreve apenas os campos novos
+    };
+    
+    // Log para debug (remova em produção)
+    console.log('Atualizando usuário:', {
+      userAtual: user,
+      novosDados: newUserData,
+      usuarioAtualizado: updatedUser
+    });
+    
     setUser(updatedUser);
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
   };
