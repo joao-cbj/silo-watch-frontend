@@ -1,10 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext();
 
-// Hook personalizado
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -19,63 +18,61 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Verifica token salvo no localStorage ao iniciar
   useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem('authToken');
-      if (token) {
+    const checkAuth = async () => {
+      const savedUser = localStorage.getItem('authUser');
+      if (savedUser) {
         try {
-          const response = await api.get('/api/auth/verificar');
-          setUser(response.data.usuario);
-          setIsAuthenticated(true);
+          const userData = JSON.parse(savedUser);
+          const result = await authService.getUser(userData.id);
+
+          if (result.success && result.user) {
+            setUser(result.user);
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('authUser');
+          }
         } catch (error) {
-          // Token inválido ou expirado
-          localStorage.removeItem('authToken');
           localStorage.removeItem('authUser');
         }
       }
       setLoading(false);
     };
-    checkToken();
+    checkAuth();
   }, []);
 
-  // Login
   const login = async (email, senha) => {
     try {
-      const response = await api.post('/api/auth/login', { email, senha });
-      const { token, usuario } = response.data;
+      const result = await authService.login(email, senha);
 
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('authUser', JSON.stringify(usuario));
+      if (result.success) {
+        localStorage.setItem('authUser', JSON.stringify(result.user));
+        setUser(result.user);
+        setIsAuthenticated(true);
+        navigate('/dashboard', { replace: true });
+        return { success: true };
+      }
 
-      setUser(usuario);
-      setIsAuthenticated(true);
-
-      navigate('/dashboard', { replace: true });
-      return { success: true };
+      return { success: false, message: result.message };
     } catch (error) {
-      console.error("Erro no login:", error.response?.data?.message || error.message);
-      return { success: false, message: error.response?.data?.message || 'Erro ao tentar fazer login.' };
+      console.error("Erro no login:", error);
+      return { success: false, message: 'Erro ao tentar fazer login.' };
     }
   };
 
-  // Logout
   const logout = () => {
-    localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
     setUser(null);
     setIsAuthenticated(false);
     navigate('/login', { replace: true });
   };
 
- 
   const updateUser = (newUserData) => {
     const updatedUser = { ...user, ...newUserData };
     setUser(updatedUser);
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
   };
 
-  // 🔹 Provider exportando tudo
   return (
     <AuthContext.Provider
       value={{

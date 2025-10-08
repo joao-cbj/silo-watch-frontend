@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeftIcon, UserCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../components/Sidebar';
-import api from '../services/api';
+import { authService } from '../services/authService';
 
 const MyAccountPage = () => {
   const { user, updateUser } = useAuth(); //  usa updateUser do contexto
@@ -30,27 +30,25 @@ const MyAccountPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.put(`/api/usuarios/${user._id}`, formData);
+      const result = await authService.updateUser(user.id, formData);
 
-      if (response.data.success) {
-        //  Atualiza o estado global e o localStorage via contexto
-        updateUser(formData);
+      if (result.success) {
+        updateUser(result.user);
 
-        setMessage({ 
-          type: 'success', 
-          text: 'Perfil atualizado com sucesso! Redirecionando...' 
+        setMessage({
+          type: 'success',
+          text: 'Perfil atualizado com sucesso! Redirecionando...'
         });
 
-        // ✨ Redireciona para o dashboard após pequeno delay
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
-        setMessage({ type: 'error', text: 'Erro ao atualizar perfil.' });
+        setMessage({ type: 'error', text: result.message || 'Erro ao atualizar perfil.' });
       }
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.error || 'Erro ao atualizar perfil' 
+      setMessage({
+        type: 'error',
+        text: 'Erro ao atualizar perfil'
       });
     } finally {
       setLoading(false);

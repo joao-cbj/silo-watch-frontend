@@ -8,15 +8,13 @@ import {
   XMarkIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import { authService } from "../services/authService";
 import logo from "../assets/silo-watch-logo.png";
 
 const SettingsWindow = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState(null);
   const { user, updateUser } = useAuth();
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     nome: user?.nome || "",
@@ -39,22 +37,22 @@ const SettingsWindow = ({ onClose }) => {
     setMessage({ type: "", text: "" });
 
     try {
-      const response = await api.put(`/api/usuarios/${user._id}`, formData);
+      const result = await authService.updateUser(user.id, formData);
 
-      if (response.data.success) {
-        updateUser(formData);
+      if (result.success) {
+        updateUser(result.user);
         setMessage({
           type: "success",
           text: "Perfil atualizado com sucesso!",
         });
       } else {
-        setMessage({ type: "error", text: "Erro ao atualizar perfil." });
+        setMessage({ type: "error", text: result.message || "Erro ao atualizar perfil." });
       }
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
       setMessage({
         type: "error",
-        text: error.response?.data?.error || "Erro ao atualizar perfil",
+        text: "Erro ao atualizar perfil",
       });
     } finally {
       setLoading(false);
