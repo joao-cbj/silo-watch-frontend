@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeftIcon, UserCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../components/Sidebar';
-import { authService } from '../services/authService';
+import api from '../services/api';
 
 const MyAccountPage = () => {
   const { user, updateUser } = useAuth(); //  usa updateUser do contexto
@@ -30,10 +30,10 @@ const MyAccountPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const result = await authService.updateUser(user.id, formData);
+      const response = await api.put(`/api/usuarios/${user._id}`, formData);
 
-      if (result.success) {
-        updateUser(result.user);
+      if (response.data.success) {
+        updateUser(formData);
 
         setMessage({
           type: 'success',
@@ -42,13 +42,13 @@ const MyAccountPage = () => {
 
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
-        setMessage({ type: 'error', text: result.message || 'Erro ao atualizar perfil.' });
+        setMessage({ type: 'error', text: 'Erro ao atualizar perfil.' });
       }
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
       setMessage({
         type: 'error',
-        text: 'Erro ao atualizar perfil'
+        text: error.response?.data?.error || 'Erro ao atualizar perfil'
       });
     } finally {
       setLoading(false);
