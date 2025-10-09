@@ -4,13 +4,15 @@ import Sidebar from '../components/Sidebar';
 import SiloCard from '../components/SiloCard';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import WindyMap from "../components/WindyMap";
-
+import HistoricoGrafico from "../components/dashboard/HistoricoGrafico";
+import TabelaCriticos from "../components/dashboard/TabelaCriticos";
 
 const DashboardPage = () => {
   const [silos, setSilos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [viewMode, setViewMode] = useState('simples'); // 'simples' ou 'detalhada'
   const intervalRef = useRef(null);
 
   const fetchData = async () => {
@@ -53,13 +55,40 @@ const DashboardPage = () => {
     };
   }, []);
 
+  const toggleViewMode = () => {
+    setViewMode(prev => (prev === 'simples' ? 'detalhada' : 'simples'));
+  };
+
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
       <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">Dashboard de Monitoramento</h2>
-          <div className="flex items-center gap-4">
+          
+          <div className="flex items-center gap-6">
+            {/* Switch Visão Simples / Detalhada */}
+            <label htmlFor="viewModeSwitch" className="flex items-center cursor-pointer select-none">
+              <span className="mr-2 text-gray-700 text-sm font-medium">
+                {viewMode === 'simples' ? 'Visão Simples' : 'Visão Detalhada'}
+              </span>
+              <div className="relative">
+                <input 
+                  id="viewModeSwitch" 
+                  type="checkbox" 
+                  className="sr-only" 
+                  checked={viewMode === 'detalhada'} 
+                  onChange={toggleViewMode} 
+                />
+                <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
+                <div 
+                  className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
+                    viewMode === 'detalhada' ? 'transform translate-x-5' : ''
+                  }`}
+                ></div>
+              </div>
+            </label>
+
             <span className="text-sm text-gray-500">
               Atualizado em: {lastUpdated.toLocaleTimeString('pt-BR')}
             </span>
@@ -103,7 +132,8 @@ const DashboardPage = () => {
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap gap-3">
+            {/* Cards dos Silos */}
+            <div className="flex flex-wrap gap-3 mb-8">
               {silos.map(silo => (
                 <SiloCard 
                   key={silo._id || silo.dispositivo} 
@@ -117,13 +147,38 @@ const DashboardPage = () => {
               </button>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Mapa Climático</h3>
-              <WindyMap 
-                lat={silos[0]?.latitude || -8.0476} 
-                lon={silos[0]?.longitude || -34.8770} 
-              />
+            {viewMode === 'simples' ? (
+            <div className="flex gap-6">
+              {/* HISTÓRICO */}
+                <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
+                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Histórico</h3>
+                  <div className="text-sm">
+                    <HistoricoGrafico dispositivoId="ESP32_SILO_01" />
+                  </div>
+                </div>
+
+              {/* ALERTAS CRÍTICOS */}
+                <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
+                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Alertas Críticos</h3>
+                  <div className="text-xs">
+                    <TabelaCriticos dispositivoId="ESP32_SILO_01" />
+                  </div>
+                </div>
             </div>
+            ) : (
+                <div className="bg-white rounded-lg p-2 shadow w-[100%] max-w-[300px]">
+                  <h2 className="text-2x1 font-bold text-gray-800 mb-4">Mapa Climático</h2>
+                  <div className="h-[280px] overflow-hidden rounded">
+                    <WindyMap 
+                      lat={silos[0]?.latitude || -8.0476} 
+                      lon={silos[0]?.longitude || -34.8770} 
+                    />
+                  </div>
+                </div>
+
+
+                )}
+
           </>
         )}
       </main>
