@@ -6,60 +6,15 @@ import {
   KeyIcon,
   ShieldCheckIcon,
   XMarkIcon,
-  EnvelopeIcon,
+  AdjustmentsHorizontalIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
 import logo from "../assets/silo-watch-logo.png";
+import AccountTab from "./settings/tabs/AccountTab";
+import SecurityTab from "./settings/tabs/SecurityTab";
 
 const SettingsWindow = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState(null);
-  const { user, updateUser } = useAuth();
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    nome: user?.nome || "",
-    email: user?.email || "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const response = await api.put(`/api/usuarios/${user._id}`, formData);
-
-      if (response.data.success) {
-        updateUser(formData);
-        setMessage({
-          type: "success",
-          text: "Perfil atualizado com sucesso!",
-        });
-      } else {
-        setMessage({ type: "error", text: "Erro ao atualizar perfil." });
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-      setMessage({
-        type: "error",
-        text: error.response?.data?.error || "Erro ao atualizar perfil",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderContent = () => {
     if (!activeTab) {
@@ -78,105 +33,60 @@ const SettingsWindow = ({ onClose }) => {
 
     switch (activeTab) {
       case "account":
-        return (
-          <div className="p-8 h-full overflow-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Minha Conta
-            </h2>
-
-            <div className="flex items-center mb-8 pb-6 border-b border-gray-200">
-              <div className="bg-blue-600 rounded-full p-4">
-                <UserCircleIcon className="h-12 w-12 text-white" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-xl font-semibold text-gray-800">
-                  {user?.nome}
-                </h3>
-                <p className="text-sm text-gray-500">{user?.email}</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    <UserCircleIcon className="h-4 w-4 inline mr-1" />
-                    Nome Completo
-                  </label>
-                  <input
-                    type="text"
-                    name="nome"
-                    value={formData.nome}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    <EnvelopeIcon className="h-4 w-4 inline mr-1" />
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {message.text && (
-                <div
-                  className={`mt-6 p-4 rounded-lg ${
-                    message.type === "success"
-                      ? "bg-green-50 border border-green-200 text-green-700"
-                      : "bg-red-50 border border-red-200 text-red-700"
-                  }`}
-                >
-                  {message.text}
-                </div>
-              )}
-
-              <div className="mt-8">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 disabled:bg-gray-400"
-                >
-                  {loading ? "Salvando..." : "Salvar Alterações"}
-                </button>
-              </div>
-            </form>
-          </div>
-        );
-
+        return <AccountTab />;
       case "security":
-        return (
-          <div className="p-8 h-full overflow-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Segurança
-            </h2>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-              <KeyIcon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-700 font-semibold">
-                Funcionalidade em desenvolvimento
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Em breve você poderá alterar sua senha e configurar autenticação
-                em duas etapas.
-              </p>
-            </div>
-          </div>
-        );
-
+        return <SecurityTab />;
+      case "multifactor":
+        return <MultifactorTab />;
+      case "preferences":
+        return <PreferencesTab />;
+      case "notifications":
+        return <NotificationsTab />;
+      case "accessibility":
+        return <AccessibilityTab />;
       default:
         return null;
     }
   };
+
+  const menuItems = [
+    {
+      id: "account",
+      label: "Minha Conta",
+      icon: UserCircleIcon,
+      enabled: true,
+    },
+    {
+      id: "security",
+      label: "Segurança",
+      icon: KeyIcon,
+      enabled: true,
+    },
+    {
+      id: "multifactor",
+      label: "Autenticação Multifator",
+      icon: ShieldCheckIcon,
+      enabled: false,
+    },
+    {
+      id: "preferences",
+      label: "Preferências",
+      icon: AdjustmentsHorizontalIcon,
+      enabled: true,
+    },
+    {
+      id: "notifications",
+      label: "Notificações",
+      icon: BellIcon,
+      enabled: false,
+    },
+    {
+      id: "accessibility",
+      label: "Acessibilidade",
+      icon: EyeIcon,
+      enabled: true,
+    },
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -187,10 +97,11 @@ const SettingsWindow = ({ onClose }) => {
           WebkitBackdropFilter: "blur(10px)",
           backdropFilter: "blur(10px)",
         }}
+        onClick={onClose}
       ></div>
 
       {/* Janela principal */}
-      <div className="relative flex w-[900px] h-[600px] bg-white border border-gray-200 shadow-2xl z-10">
+      <div className="relative flex w-[900px] h-[600px] bg-white border border-gray-200 shadow-2xl z-10 rounded-lg overflow-hidden">
         {/* Sidebar com gradiente azul */}
         <div
           className="w-64 flex flex-col text-white"
@@ -210,47 +121,45 @@ const SettingsWindow = ({ onClose }) => {
             <span className="font-semibold text-blue-50">Configurações</span>
           </div>
 
-          {/* Opções */}
-          <div className="flex flex-col mt-2 text-sm">
-            <button
-              onClick={() => setActiveTab("account")}
-              className={`flex items-center px-5 py-3 transition-all duration-150 text-left ${
-                activeTab === "account"
-                  ? "bg-blue-700/80"
-                  : "hover:bg-blue-700/60"
-              }`}
-            >
-              <UserCircleIcon className="h-5 w-5 mr-3 text-blue-100" />
-              <span className="font-medium text-blue-50">Minha Conta</span>
-            </button>
+          {/* Menu de Opções */}
+          <div className="flex flex-col mt-2 text-sm overflow-y-auto flex-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => item.enabled && setActiveTab(item.id)}
+                  disabled={!item.enabled}
+                  className={`flex items-center px-5 py-3 transition-all duration-150 text-left ${
+                    activeTab === item.id
+                      ? "bg-blue-700/80"
+                      : item.enabled
+                      ? "hover:bg-blue-700/60"
+                      : "opacity-60 cursor-not-allowed"
+                  }`}
+                >
+                  <Icon
+                    className={`h-5 w-5 mr-3 ${
+                      item.enabled ? "text-blue-100" : "text-blue-200"
+                    }`}
+                  />
+                  <span
+                    className={`${
+                      activeTab === item.id || item.enabled
+                        ? "font-medium text-blue-50"
+                        : "text-blue-100"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-            <button
-              disabled
-              className="flex items-center px-5 py-3 opacity-60 cursor-not-allowed text-left"
-            >
-              <BellIcon className="h-5 w-5 mr-3 text-blue-200" />
-              <span className="text-blue-100">Notificações</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("security")}
-              className={`flex items-center px-5 py-3 transition-all duration-150 text-left ${
-                activeTab === "security"
-                  ? "bg-blue-700/80"
-                  : "hover:bg-blue-700/60"
-              }`}
-            >
-              <KeyIcon className="h-5 w-5 mr-3 text-blue-100" />
-              <span className="font-medium text-blue-50">Segurança</span>
-            </button>
-
-            <button
-              disabled
-              className="flex items-center px-5 py-3 opacity-60 cursor-not-allowed text-left"
-            >
-              <ShieldCheckIcon className="h-5 w-5 mr-3 text-blue-200" />
-              <span className="text-blue-100">Privacidade</span>
-            </button>
+          {/* Footer com versão */}
+          <div className="px-5 py-3 border-t border-blue-700/30 text-xs text-blue-200">
+            <p>Versão 1.0.0</p>
           </div>
         </div>
 
@@ -258,7 +167,7 @@ const SettingsWindow = ({ onClose }) => {
         <div className="flex-1 relative bg-white">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-2 hover:bg-gray-100 transition rounded z-10"
+            className="absolute top-3 right-3 p-2 hover:bg-gray-100 transition rounded-lg z-10"
             aria-label="Fechar"
           >
             <XMarkIcon className="h-6 w-6 text-gray-600" />

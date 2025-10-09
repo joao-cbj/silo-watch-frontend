@@ -4,6 +4,7 @@ import api from '../services/api';
 
 const AuthContext = createContext();
 
+// Hook personalizado
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Verifica token salvo no localStorage ao iniciar
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem('authToken');
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           setUser(response.data.usuario);
           setIsAuthenticated(true);
         } catch (error) {
+          // Token inválido ou expirado
           localStorage.removeItem('authToken');
           localStorage.removeItem('authUser');
           
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }) => {
     checkToken();
   }, []);
 
+  // Login
   const login = async (email, senha) => {
     try {
       const response = await api.post('/api/auth/login', { email, senha });
@@ -75,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
@@ -83,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   };
 
+  // CORREÇÃO PRINCIPAL: Manter o _id ao atualizar
   const updateUser = (newUserData) => {
     // Garante que o _id sempre será mantido
     const updatedUser = { 
@@ -101,6 +107,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
   };
 
+  // Provider exportando tudo
   return (
     <AuthContext.Provider
       value={{
