@@ -72,7 +72,7 @@ const SettingsWindow = ({ onClose }) => {
       id: "preferences",
       label: "Preferências",
       icon: AdjustmentsHorizontalIcon,
-      enabled: true,
+      enabled: false,
     },
     {
       id: "notifications",
@@ -84,7 +84,7 @@ const SettingsWindow = ({ onClose }) => {
       id: "accessibility",
       label: "Acessibilidade",
       icon: EyeIcon,
-      enabled: true,
+      enabled: false,
     },
   ];
 
@@ -101,22 +101,22 @@ const SettingsWindow = ({ onClose }) => {
       ></div>
 
       {/* Janela principal */}
-      <div className="relative flex w-[900px] h-[600px] bg-white border border-gray-200 shadow-2xl z-10 rounded-lg overflow-hidden">
+      <div className="relative flex w-[900px] h-[600px] bg-white border border-gray-200 shadow-2xl z-10  overflow-hidden">
         {/* Sidebar com gradiente azul */}
         <div
           className="w-64 flex flex-col text-white"
           style={{
-            background: "linear-gradient(180deg, #2563EB 0%, #1E3A8A 100%)",
+            background: "linear-gradient(180deg, #1f2937 0%, #1F2238 100%)",
           }}
         >
           {/* Header com logo */}
-          <div className="flex items-center justify-center py-5 border-b border-blue-700/40">
+          <div className="flex items-center justify-center py-5 border-b border-gray-400/40">
             <img src={logo} alt="Silo Watch" className="w-10 h-10 mr-2" />
             <h2 className="font-bold text-lg tracking-tight">SILO WATCH</h2>
           </div>
 
           {/* Título */}
-          <div className="flex items-center px-5 py-4 border-b border-blue-700/30">
+          <div className="flex items-center px-5 py-4 border-b border-gray-400/30">
             <Cog6ToothIcon className="h-5 w-5 mr-2 text-blue-100" />
             <span className="font-semibold text-blue-50">Configurações</span>
           </div>
