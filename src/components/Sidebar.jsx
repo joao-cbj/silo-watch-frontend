@@ -5,6 +5,7 @@ import { PowerIcon, Cog6ToothIcon, DocumentChartBarIcon, UsersIcon, ArchiveBoxIc
 import logo from '../assets/silo-watch-logo.png';
 import SettingsWindow from './SettingsWindow';
 import ReportsWindow from './ReportsWindow';
+import UsersWindow from './UsersWindow';
 
 
 const Sidebar = () => {
@@ -12,6 +13,8 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showReportsModal, setShowReportsModal] = useState(false);
+  const [showUsersModal, setShowUsersModal] = useState(false);
+
 
   const handleOpenReports = (e) => {
     e.preventDefault();
@@ -20,10 +23,12 @@ const Sidebar = () => {
   const handleCloseReports = () => setShowReportsModal(false);
 
 
+  const handleCloseUsers = () => setShowUsersModal(false);
+
   const handleLogout = () => {
     logout();
-  };
-
+  }
+  
   const handleOpenConfig = (e) => {
     e.preventDefault();
     setShowConfigModal(true);
@@ -32,6 +37,8 @@ const Sidebar = () => {
   const handleCloseConfig = () => {
     setShowConfigModal(false);
   };
+
+  
 
   return (
     <>
@@ -48,7 +55,11 @@ const Sidebar = () => {
             <a href="#" className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200">
               <ArchiveBoxIcon className="h-6 w-6 mr-3" /> Gerenciar Silos
             </a>
-            <a href="#" className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setShowUsersModal(true); }}
+              className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
+            >
               <UsersIcon className="h-6 w-6 mr-3" /> Gerenciar Usuários
             </a>
             <a
@@ -82,9 +93,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Modal de Configurações e Relatorios */}
+      {/* Modal de Configurações, Relatorios e Usuarios*/}
       {showConfigModal && <SettingsWindow onClose={handleCloseConfig} />}
       {showReportsModal && <ReportsWindow onClose={handleCloseReports} />}
+      {showUsersModal && <UsersWindow onClose={handleCloseUsers} />}
 
     </>
   );
