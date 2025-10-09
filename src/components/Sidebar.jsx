@@ -4,11 +4,21 @@ import { useAuth } from '../context/AuthContext';
 import { PowerIcon, Cog6ToothIcon, DocumentChartBarIcon, UsersIcon, ArchiveBoxIcon, ChartPieIcon } from '@heroicons/react/24/outline';
 import logo from '../assets/silo-watch-logo.png';
 import SettingsWindow from './SettingsWindow';
+import ReportsWindow from './ReportsWindow';
+
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showReportsModal, setShowReportsModal] = useState(false);
+
+  const handleOpenReports = (e) => {
+    e.preventDefault();
+    setShowReportsModal(true);
+  };
+  const handleCloseReports = () => setShowReportsModal(false);
+
 
   const handleLogout = () => {
     logout();
@@ -41,7 +51,11 @@ const Sidebar = () => {
             <a href="#" className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200">
               <UsersIcon className="h-6 w-6 mr-3" /> Gerenciar Usuários
             </a>
-            <a href="#" className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200">
+            <a
+              href="#"
+              onClick={handleOpenReports}
+              className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
+            >
               <DocumentChartBarIcon className="h-6 w-6 mr-3" /> Relatórios
             </a>
             <a 
@@ -68,8 +82,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Modal de Configurações */}
+      {/* Modal de Configurações e Relatorios */}
       {showConfigModal && <SettingsWindow onClose={handleCloseConfig} />}
+      {showReportsModal && <ReportsWindow onClose={handleCloseReports} />}
+
     </>
   );
 };
