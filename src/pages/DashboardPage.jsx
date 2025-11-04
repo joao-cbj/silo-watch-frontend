@@ -2,17 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import SiloCard from '../components/SiloCard';
+import SiloTable from '../components/dashboard/SiloTable';
+import MetricCards from '../components/dashboard/MetricCards';
+import AnalyticsInsights from '../components/dashboard/AnalyticsInsights';
+import HistoricoGrafico from '../components/dashboard/HistoricoGrafico';
+import TabelaCriticos from '../components/dashboard/TabelaCriticos';
 import { PlusIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
-import WindyMap from "../components/WindyMap";
-import HistoricoGrafico from "../components/dashboard/HistoricoGrafico";
-import TabelaCriticos from "../components/dashboard/TabelaCriticos";
 
 const DashboardPage = () => {
   const [silos, setSilos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [viewMode, setViewMode] = useState('simples'); // 'simples' ou 'detalhada'
+  const [viewMode, setViewMode] = useState('simples');
   const intervalRef = useRef(null);
 
   const fetchData = async () => {
@@ -67,7 +69,6 @@ const DashboardPage = () => {
           <h2 className="text-3xl font-bold text-gray-800">Dashboard de Monitoramento</h2>
           
           <div className="flex items-center gap-6">
-            {/* Switch Visão Simples / Detalhada */}
             <label htmlFor="viewModeSwitch" className="flex items-center cursor-pointer select-none">
               <span className="mr-2 text-gray-700 text-sm font-medium">
                 {viewMode === 'simples' ? 'Visão Simples' : 'Visão Detalhada'}
@@ -132,53 +133,62 @@ const DashboardPage = () => {
           </div>
         ) : (
           <>
-            {/* Cards dos Silos */}
-            <div className="flex flex-wrap gap-3 mb-8">
-              {silos.map(silo => (
-                <SiloCard 
-                  key={silo._id || silo.dispositivo} 
-                  silo={silo} 
-                />
-              ))}
-
-              <button className="flex flex-col items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors h-[150px] w-[150px]">
-                <PlusIcon className="h-8 w-8 mb-1" />
-                <span className="font-medium text-xs">Adicionar Silo</span>
-              </button>
-            </div>
-
             {viewMode === 'simples' ? (
-            <div className="flex gap-6">
-              {/* HISTÓRICO */}
-                <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
-                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Histórico</h3>
-                  <div className="text-sm">
-                    <HistoricoGrafico dispositivoId="ESP32_SILO_01" />
-                  </div>
-                </div>
-
-              {/* ALERTAS CRÍTICOS */}
-                <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
-                 <h3 className="text-xl font-semibold text-gray-800 mb-3">Alertas Críticos</h3>
-                  <div className="text-xs">
-                    <TabelaCriticos dispositivoId="ESP32_SILO_01" />
-                  </div>
-                </div>
-            </div>
-            ) : (
-                <div className="bg-white rounded-lg p-2 shadow w-[100%] max-w-[300px]">
-                  <h2 className="text-2x1 font-bold text-gray-800 mb-4">Mapa Climático</h2>
-                  <div className="h-[280px] overflow-hidden rounded">
-                    <WindyMap 
-                      lat={silos[0]?.latitude || -8.0476} 
-                      lon={silos[0]?.longitude || -34.8770} 
+              <>
+                {/* Cards dos Silos - Visão Simples */}
+                <div className="flex flex-wrap gap-3 mb-8">
+                  {silos.map(silo => (
+                    <SiloCard 
+                      key={silo._id || silo.dispositivo} 
+                      silo={silo} 
                     />
-                  </div>
+                  ))}
+
+                  <button className="flex flex-col items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors h-[150px] w-[150px]">
+                    <PlusIcon className="h-8 w-8 mb-1" />
+                    <span className="font-medium text-xs">Adicionar Silo</span>
+                  </button>
                 </div>
 
+                {/* Histórico e Alertas - Visão Simples */}
+                <div className="flex gap-6">
+                  <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3">Histórico</h3>
+                    <div className="text-sm">
+                      <HistoricoGrafico dispositivoId={silos[0]?.dispositivo || "ESP32_SILO_01"} />
+                    </div>
+                  </div>
 
-                )}
+                  <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3">Alertas Críticos</h3>
+                    <div className="text-xs">
+                      <TabelaCriticos dispositivoId={silos[0]?.dispositivo || "ESP32_SILO_01"} />
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Visão Detalhada */}
+                <div className="space-y-6">
+                  {/* Tabela de Silos */}
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      Monitoramento Detalhado dos Silos
+                    </h3>
+                    <SiloTable silos={silos} />
+                  </div>
 
+                  {/* Cards de Métricas */}
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      Métricas e Analytics
+                    </h3>
+                    <MetricCards silos={silos} />
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
       </main>

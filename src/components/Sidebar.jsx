@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PowerIcon, Cog6ToothIcon, DocumentChartBarIcon, UsersIcon, ArchiveBoxIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { PowerIcon, Cog6ToothIcon, ChartBarIcon, UsersIcon, ArchiveBoxIcon, ChartPieIcon } from '@heroicons/react/24/outline';
 import logo from '../assets/silo-watch-logo.png';
 import SettingsWindow from './SettingsWindow';
-import ReportsWindow from './ReportsWindow';
+import AnalysisWindow from './AnalysisWindow';
 import UsersWindow from './UsersWindow';
-
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [showReportsModal, setShowReportsModal] = useState(false);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showUsersModal, setShowUsersModal] = useState(false);
 
-
-  const handleOpenReports = (e) => {
+  const handleOpenAnalysis = (e) => {
     e.preventDefault();
-    setShowReportsModal(true);
+    setShowAnalysisModal(true);
   };
-  const handleCloseReports = () => setShowReportsModal(false);
-
-
+  
+  const handleCloseAnalysis = () => setShowAnalysisModal(false);
   const handleCloseUsers = () => setShowUsersModal(false);
 
   const handleLogout = () => {
@@ -37,8 +34,6 @@ const Sidebar = () => {
   const handleCloseConfig = () => {
     setShowConfigModal(false);
   };
-
-  
 
   return (
     <>
@@ -64,10 +59,10 @@ const Sidebar = () => {
             </a>
             <a
               href="#"
-              onClick={handleOpenReports}
+              onClick={handleOpenAnalysis}
               className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
             >
-              <DocumentChartBarIcon className="h-6 w-6 mr-3" /> Relatórios
+              <ChartBarIcon className="h-6 w-6 mr-3" /> Análises
             </a>
             <a 
               href="#" 
@@ -93,11 +88,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Modal de Configurações, Relatorios e Usuarios*/}
+      {/* Modais */}
       {showConfigModal && <SettingsWindow onClose={handleCloseConfig} />}
-      {showReportsModal && <ReportsWindow onClose={handleCloseReports} />}
+      {showAnalysisModal && <AnalysisWindow onClose={handleCloseAnalysis} />}
       {showUsersModal && <UsersWindow onClose={handleCloseUsers} />}
-
     </>
   );
 };
