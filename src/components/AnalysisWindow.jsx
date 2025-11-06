@@ -93,7 +93,7 @@ const AnalysisWindow = ({ onClose }) => {
       ></div>
 
       {/* Janela principal */}
-      <div className="relative flex w-[1200px] h-[700px] bg-white border border-gray-200 shadow-2xl z-10 overflow-hidden">
+      <div className="relative flex w-[900px] h-[600px] bg-white border border-gray-200 shadow-2xl z-10 overflow-hidden">{/* Mesma largura e altura do SettingsWindow */}
         {/* Sidebar com gradiente */}
         <div
           className="w-64 flex flex-col text-white"
@@ -144,8 +144,7 @@ const AnalysisWindow = ({ onClose }) => {
 
           {/* Footer com versão */}
           <div className="px-5 py-3 border-t border-blue-700/30 text-xs text-blue-200">
-            <p>Powered by Python Analytics</p>
-            <p className="text-blue-300/70">Versão 1.0.0</p>
+            <p>Versão 1.0.0</p>
           </div>
         </div>
 

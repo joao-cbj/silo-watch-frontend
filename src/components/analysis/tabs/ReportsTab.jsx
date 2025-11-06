@@ -227,6 +227,7 @@ const ReportsTab = ({ activeTab, setActiveTab }) => {
   };
 
   const renderTabContent = () => {
+    // Filtros comuns para TODAS as abas
     const commonFilters = (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -246,32 +247,28 @@ const ReportsTab = ({ activeTab, setActiveTab }) => {
               ))}
             </select>
           </div>
-          {activeTab === "tab1" && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data Inicial
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  value={dataInicio}
-                  onChange={(e) => setDataInicio(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Data Final
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  value={dataFim}
-                  onChange={(e) => setDataFim(e.target.value)}
-                />
-              </div>
-            </>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Data Inicial
+            </label>
+            <input
+              type="date"
+              className="w-full border border-gray-300 rounded-lg p-2"
+              value={dataInicio}
+              onChange={(e) => setDataInicio(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Data Final
+            </label>
+            <input
+              type="date"
+              className="w-full border border-gray-300 rounded-lg p-2"
+              value={dataFim}
+              onChange={(e) => setDataFim(e.target.value)}
+            />
+          </div>
         </div>
       </div>
     );
@@ -318,7 +315,7 @@ const ReportsTab = ({ activeTab, setActiveTab }) => {
               disabled={loading}
               className="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition duration-150 w-full disabled:opacity-50"
             >
-              <ChartBarIcon className="h-5 w-5 mr-2" />
+              <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
               {loading ? "Exportando..." : "Exportar Estatísticas"}
             </button>
           </>
