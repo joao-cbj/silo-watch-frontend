@@ -31,7 +31,7 @@ const IntegrationTab = () => {
 
   const checkGatewayStatus = async () => {
     try {
-      const response = await api.get("/api/hybrid-provisioning/status");
+      const response = await api.get("/api/mqtt-provisioning/status");
       setGatewayStatus(response.data.gateway);
     } catch (err) {
       setGatewayStatus({ online: false });
@@ -58,7 +58,7 @@ const IntegrationTab = () => {
     setDispositivosBLE([]);
 
     try {
-      const response = await api.post("/api/hybrid-provisioning/scan");
+      const response = await api.post("/api/mqtt-provisioning/scan");
 
       if (response.data.success) {
         setDispositivosBLE(response.data.dispositivos || []);
@@ -80,7 +80,7 @@ const IntegrationTab = () => {
     setError(null);
 
     try {
-      const response = await api.post("/api/hybrid-provisioning/provision", {
+      const response = await api.post("/api/mqtt-provisioning/provision", {
         siloId,
         macSilo,
       });
@@ -117,10 +117,10 @@ const IntegrationTab = () => {
   return (
     <div className="p-6 h-full overflow-y-auto">
       <h3 className="text-2xl font-bold text-gray-800 mb-2">
-        Integrações ESP32 Híbridas
+        Integrações ESP32 via MQTT
       </h3>
       <p className="text-gray-500 text-sm mb-4">
-        Provisionamento via Firebase → Gateway → BLE
+        Provisionamento via MQTT → Gateway → BLE
       </p>
 
       {/* Status do Gateway */}
@@ -141,7 +141,7 @@ const IntegrationTab = () => {
             </span>
             {gatewayStatus?.online && (
               <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                Firebase + BLE
+                MQTT + BLE
               </span>
             )}
           </div>
