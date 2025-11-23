@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "../../../services/api";
 import {
   LinkIcon,
-  LinkSlashIcon,
   CheckCircleIcon,
   XCircleIcon,
   MagnifyingGlassIcon,
@@ -20,26 +19,19 @@ const IntegrationTab = () => {
   const [gatewayStatus, setGatewayStatus] = useState(null);
 
   const fetchSilos = async () => {
-    setLoading(true);
-    setError(null);
-
     try {
       const response = await api.get("/api/silos");
-
       if (response.data.success) {
         setSilos(response.data.silos);
       }
     } catch (err) {
       console.error("Erro ao buscar silos:", err);
-      setError("Erro ao carregar lista de silos");
-    } finally {
-      setLoading(false);
     }
   };
 
   const checkGatewayStatus = async () => {
     try {
-      const response = await api.get("/api/provisioning/ping");
+      const response = await api.get("/api/hybrid-provisioning/status");
       setGatewayStatus(response.data.gateway);
     } catch (err) {
       setGatewayStatus({ online: false });
@@ -47,10 +39,15 @@ const IntegrationTab = () => {
   };
 
   useEffect(() => {
-    fetchSilos();
-    checkGatewayStatus();
+    const init = async () => {
+      setLoading(true);
+      await fetchSilos();
+      await checkGatewayStatus();
+      setLoading(false);
+    };
+
+    init();
     
-    // Verifica status do gateway a cada 30 segundos
     const interval = setInterval(checkGatewayStatus, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -61,63 +58,43 @@ const IntegrationTab = () => {
     setDispositivosBLE([]);
 
     try {
-      const response = await api.post("/api/provisioning/scan");
+      const response = await api.post("/api/hybrid-provisioning/scan");
 
       if (response.data.success) {
         setDispositivosBLE(response.data.dispositivos || []);
         
         if (response.data.dispositivos.length === 0) {
-          setError("Nenhum dispositivo ESP32 encontrado. Certifique-se de que o silo está ligado e em modo setup.");
+          setError("Nenhum dispositivo ESP32 encontrado via BLE. Ligue o silo em modo setup.");
         }
       }
     } catch (err) {
       console.error("Erro ao escanear:", err);
-      setError(err.response?.data?.error || "Erro ao escanear dispositivos BLE");
+      setError(err.response?.data?.error || "Erro ao escanear via Gateway");
     } finally {
       setScanning(false);
     }
   };
 
-  const handleProvision = async (siloId, bleAddress) => {
+  const handleProvision = async (siloId, macSilo) => {
     setProvisioning(siloId);
     setError(null);
 
     try {
-      const response = await api.post("/api/provisioning/provision", {
+      const response = await api.post("/api/hybrid-provisioning/provision", {
         siloId,
-        bleAddress,
+        macSilo,
       });
 
       if (response.data.success) {
-        alert("Silo provisionado com sucesso! O dispositivo irá reiniciar.");
+        alert("✓ Silo provisionado via BLE! O ESP32 irá reiniciar.");
         setDispositivosBLE([]);
-        fetchSilos();
+        await fetchSilos();
       }
     } catch (err) {
       console.error("Erro ao provisionar:", err);
-      alert(err.response?.data?.error || "Erro ao provisionar silo");
-    } finally {
-      setProvisioning(null);
-    }
-  };
-
-  const handleDisintegrate = async (siloId) => {
-    if (!window.confirm("Desintegrar este silo? O dispositivo precisará ser provisionado novamente.")) {
-      return;
-    }
-
-    setProvisioning(siloId);
-
-    try {
-      const response = await api.post(`/api/silos/${siloId}/desintegrar`);
-
-      if (response.data.success) {
-        alert("Dispositivo desintegrado com sucesso!");
-        fetchSilos();
-      }
-    } catch (err) {
-      console.error("Erro ao desintegrar:", err);
-      alert(err.response?.data?.error || "Erro ao desintegrar silo");
+      const errorMsg = err.response?.data?.error || "Erro ao provisionar silo";
+      alert("✗ " + errorMsg);
+      setError(errorMsg);
     } finally {
       setProvisioning(null);
     }
@@ -140,10 +117,10 @@ const IntegrationTab = () => {
   return (
     <div className="p-6 h-full overflow-y-auto">
       <h3 className="text-2xl font-bold text-gray-800 mb-2">
-        Integrações ESP32
+        Integrações ESP32 Híbridas
       </h3>
       <p className="text-gray-500 text-sm mb-4">
-        Conecte dispositivos ESP32 aos seus silos via BLE
+        Provisionamento via Firebase → Gateway → BLE
       </p>
 
       {/* Status do Gateway */}
@@ -162,9 +139,9 @@ const IntegrationTab = () => {
             }`}>
               Gateway ESP32: {gatewayStatus?.online ? 'Online' : 'Offline'}
             </span>
-            {gatewayStatus?.online && gatewayStatus.ip && (
-              <span className="text-xs text-gray-600 ml-2">
-                ({gatewayStatus.ip})
+            {gatewayStatus?.online && (
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                Firebase + BLE
               </span>
             )}
           </div>
@@ -172,12 +149,11 @@ const IntegrationTab = () => {
             onClick={checkGatewayStatus}
             className="text-sm text-blue-600 hover:text-blue-800"
           >
-            Verificar novamente
+            Verificar
           </button>
         </div>
       </div>
 
-      {/* Mensagem de erro global */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
           <XCircleIcon className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -188,9 +164,9 @@ const IntegrationTab = () => {
       {/* Informação */}
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800">
-          <strong>💡 Como funciona:</strong> Clique em "Escanear Dispositivos" 
-          para encontrar ESPs próximas. Selecione o silo e o dispositivo encontrado 
-          para fazer a integração via BLE.
+          <strong>💡 Como funciona:</strong> Clique em "Escanear BLE" para
+          o Gateway buscar dispositivos próximos. Selecione o silo e clique
+          em "Integrar" para provisionar via BLE local.
         </p>
       </div>
 
@@ -202,7 +178,7 @@ const IntegrationTab = () => {
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition font-medium"
         >
           <MagnifyingGlassIcon className={`h-5 w-5 ${scanning ? 'animate-pulse' : ''}`} />
-          {scanning ? "Escaneando BLE..." : "Escanear Dispositivos"}
+          {scanning ? "Escaneando BLE via Gateway..." : "Escanear BLE"}
         </button>
         {!gatewayStatus?.online && (
           <p className="text-sm text-red-600 mt-2">
@@ -211,12 +187,12 @@ const IntegrationTab = () => {
         )}
       </div>
 
-      {/* Dispositivos encontrados */}
+      {/* Dispositivos BLE Encontrados */}
       {dispositivosBLE.length > 0 && (
         <div className="mb-8">
           <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <SignalIcon className="h-5 w-5 text-blue-600" />
-            Dispositivos BLE Encontrados ({dispositivosBLE.length})
+            Dispositivos BLE Próximos ({dispositivosBLE.length})
           </h4>
           <div className="bg-white border border-gray-200 rounded-lg divide-y">
             {dispositivosBLE.map((device, idx) => (
@@ -224,17 +200,16 @@ const IntegrationTab = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <h5 className="font-semibold text-gray-800">
-                      {device.nome}
+                      {device.nome || device.mac}
                     </h5>
                     <p className="text-sm text-gray-500 font-mono">
-                      {device.endereco}
+                      {device.mac}
                     </p>
                     <p className="text-xs text-gray-400">
                       Sinal: {device.rssi} dBm
                     </p>
                   </div>
                   
-                  {/* Selecionar silo para integrar */}
                   <div className="flex items-center gap-2">
                     <select
                       id={`silo-${idx}`}
@@ -255,13 +230,13 @@ const IntegrationTab = () => {
                           alert("Selecione um silo primeiro");
                           return;
                         }
-                        handleProvision(siloId, device.endereco);
+                        handleProvision(siloId, device.mac);
                       }}
                       disabled={provisioning !== null || silosNaoIntegrados.length === 0}
                       className="flex items-center gap-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition text-sm font-medium"
                     >
                       <LinkIcon className="h-4 w-4" />
-                      Integrar
+                      {provisioning ? "Provisionando..." : "Integrar"}
                     </button>
                   </div>
                 </div>
@@ -291,7 +266,7 @@ const IntegrationTab = () => {
             ))}
           </div>
           <p className="text-sm text-gray-500 mt-3">
-            Clique em "Escanear Dispositivos" para encontrar ESPs próximas
+            Clique em "Escanear BLE" para encontrar dispositivos
           </p>
         </div>
       )}
@@ -324,14 +299,6 @@ const IntegrationTab = () => {
                       Tipo: {silo.tipoSilo.replace("-", " ")}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleDisintegrate(silo._id)}
-                    disabled={provisioning === silo._id}
-                    className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition text-sm font-medium"
-                  >
-                    <LinkSlashIcon className="h-4 w-4" />
-                    Desintegrar
-                  </button>
                 </div>
               </div>
             ))}
@@ -341,9 +308,9 @@ const IntegrationTab = () => {
 
       {silos.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Nenhum silo cadastrado ainda</p>
+          <p className="text-gray-500 text-lg">Nenhum silo cadastrado</p>
           <p className="text-gray-400 text-sm mt-2">
-            Cadastre um silo primeiro para poder integrá-lo
+            Cadastre um silo na aba "Adicionar Silo"
           </p>
         </div>
       )}
