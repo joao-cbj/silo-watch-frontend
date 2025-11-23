@@ -6,6 +6,7 @@ import logo from '../assets/silo-watch-logo.png';
 import SettingsWindow from './SettingsWindow';
 import AnalysisWindow from './AnalysisWindow';
 import UsersWindow from './UsersWindow';
+import SilosWindow from './SilosWindow';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
@@ -13,6 +14,7 @@ const Sidebar = () => {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showUsersModal, setShowUsersModal] = useState(false);
+  const [showSilosModal, setShowSilosModal] = useState(false);
 
   const handleOpenAnalysis = (e) => {
     e.preventDefault();
@@ -21,6 +23,7 @@ const Sidebar = () => {
   
   const handleCloseAnalysis = () => setShowAnalysisModal(false);
   const handleCloseUsers = () => setShowUsersModal(false);
+  const handleCloseSilos = () => setShowSilosModal(false);
 
   const handleLogout = () => {
     logout();
@@ -47,7 +50,11 @@ const Sidebar = () => {
             <a href="#" className="flex items-center py-3 px-4 bg-gray-900 text-white">
               <ChartPieIcon className="h-6 w-6 mr-3" /> Dashboard
             </a>
-            <a href="#" className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setShowSilosModal(true); }}
+              className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
+            >
               <ArchiveBoxIcon className="h-6 w-6 mr-3" /> Gerenciar Silos
             </a>
             <a
@@ -92,6 +99,7 @@ const Sidebar = () => {
       {showConfigModal && <SettingsWindow onClose={handleCloseConfig} />}
       {showAnalysisModal && <AnalysisWindow onClose={handleCloseAnalysis} />}
       {showUsersModal && <UsersWindow onClose={handleCloseUsers} />}
+      {showSilosModal && <SilosWindow onClose={handleCloseSilos} />}
     </>
   );
 };
