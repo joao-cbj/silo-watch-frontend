@@ -57,10 +57,6 @@ const DashboardPage = () => {
     };
   }, []);
 
-  const toggleViewMode = () => {
-    setViewMode(prev => (prev === 'simples' ? 'detalhada' : 'simples'));
-  };
-
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -69,26 +65,28 @@ const DashboardPage = () => {
           <h2 className="text-3xl font-bold text-gray-800">Dashboard de Monitoramento</h2>
           
           <div className="flex items-center gap-6">
-            <label htmlFor="viewModeSwitch" className="flex items-center cursor-pointer select-none">
-              <span className="mr-2 text-gray-700 text-sm font-medium">
-                {viewMode === 'simples' ? 'Visão Simples' : 'Visão Detalhada'}
-              </span>
-              <div className="relative">
-                <input 
-                  id="viewModeSwitch" 
-                  type="checkbox" 
-                  className="sr-only" 
-                  checked={viewMode === 'detalhada'} 
-                  onChange={toggleViewMode} 
-                />
-                <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
-                <div 
-                  className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
-                    viewMode === 'detalhada' ? 'transform translate-x-5' : ''
-                  }`}
-                ></div>
-              </div>
-            </label>
+            <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 p-0.5">
+              <button
+                onClick={() => setViewMode('simples')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  viewMode === 'simples'
+                    ? 'bg-green-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Visão Simples
+              </button>
+              <button
+                onClick={() => setViewMode('detalhada')}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  viewMode === 'detalhada'
+                    ? 'bg-green-600 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Visão Detalhada
+              </button>
+            </div>
 
             <span className="text-sm text-gray-500">
               Atualizado em: {lastUpdated.toLocaleTimeString('pt-BR')}
@@ -96,10 +94,10 @@ const DashboardPage = () => {
             <button 
               onClick={handleManualRefresh} 
               disabled={loading} 
-              className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center transition-colors"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center transition-colors w-[130px] justify-center"
             >
               <ArrowPathIcon className={`h-5 w-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Atualizando...' : 'Atualizar'}
+              <span>{loading ? 'Atualizando...' : 'Atualizar'}</span>
             </button>
           </div>
         </div>
@@ -125,11 +123,7 @@ const DashboardPage = () => {
           </div>
         ) : silos.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg mb-4">Nenhum silo cadastrado ainda</p>
-            <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
-              <PlusIcon className="h-5 w-5 inline mr-2" />
-              Adicionar Primeiro Silo
-            </button>
+            <p className="text-gray-500 text-lg">Nenhum silo cadastrado ainda</p>
           </div>
         ) : (
           <>
@@ -143,26 +137,21 @@ const DashboardPage = () => {
                       silo={silo} 
                     />
                   ))}
-
-                  <button className="flex flex-col items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-500 hover:text-green-500 transition-colors h-[150px] w-[150px]">
-                    <PlusIcon className="h-8 w-8 mb-1" />
-                    <span className="font-medium text-xs">Adicionar Silo</span>
-                  </button>
                 </div>
 
                 {/* Histórico e Alertas - Visão Simples */}
-                <div className="flex gap-6">
-                  <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3">Histórico</h3>
-                    <div className="text-sm">
-                      <HistoricoGrafico dispositivoId={silos[0]?.dispositivo || "ESP32_SILO_01"} />
+                <div className="grid grid-cols-2 gap-6" style={{ height: 'calc(100vh - 280px)' }}>
+                  <div className="bg-white rounded-lg p-4 shadow flex flex-col overflow-hidden">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Histórico</h3>
+                    <div className="flex-1 overflow-auto">
+                      <HistoricoGrafico silos={silos} />
                     </div>
                   </div>
 
-                  <div className="w-1/2 bg-white rounded-lg p-3 shadow max-h-[400px] overflow-y-auto">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3">Alertas Críticos</h3>
-                    <div className="text-xs">
-                      <TabelaCriticos dispositivoId={silos[0]?.dispositivo || "ESP32_SILO_01"} />
+                  <div className="bg-white rounded-lg p-4 shadow flex flex-col overflow-hidden">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Alertas Críticos</h3>
+                    <div className="flex-1 overflow-auto">
+                      <TabelaCriticos silos={silos} />
                     </div>
                   </div>
                 </div>
