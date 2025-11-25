@@ -21,16 +21,24 @@ const DashboardPage = () => {
     setError(null);
 
     try {
+      // ✨ ATUALIZADO: Chama o endpoint correto que retorna dados com inner join
       const response = await api.get('/api/dados/ultimas');
 
+      console.log('📊 Resposta do backend:', response.data);
+
       if (response.data.success) {
-        setSilos(response.data.data);
+        // ✨ CORRIGIDO: A resposta agora vem em response.data.data (não response.data.data)
+        const dadosComSilo = response.data.data || [];
+        
+        console.log('✅ Silos carregados:', dadosComSilo.length);
+        
+        setSilos(dadosComSilo);
         setLastUpdated(new Date());
       } else {
         setError('Erro ao buscar dados');
       }
     } catch (error) {
-      console.error("Erro ao buscar dados dos silos:", error);
+      console.error("❌ Erro ao buscar dados dos silos:", error);
 
       if (error.response?.status === 401) {
         setError('Sessão expirada. Faça login novamente.');
@@ -123,7 +131,25 @@ const DashboardPage = () => {
           </div>
         ) : silos.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Nenhum silo cadastrado ainda</p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-2xl mx-auto">
+              <p className="text-gray-700 text-lg font-semibold mb-2">
+                Nenhum silo com dados disponível
+              </p>
+              <p className="text-gray-600 text-sm">
+                Isso pode acontecer se:
+              </p>
+              <ul className="text-left text-sm text-gray-600 mt-3 space-y-1 max-w-md mx-auto">
+                <li>• Nenhum silo foi cadastrado ainda</li>
+                <li>• Os silos cadastrados não estão integrados (sem dispositivo ESP32 vinculado)</li>
+                <li>• Os dispositivos ESP32 ainda não enviaram dados</li>
+              </ul>
+              <div className="mt-4 text-xs text-gray-500">
+                <p>Para resolver, vá em <strong>Configurações → Silos</strong> e:</p>
+                <p>1. Cadastre um novo silo</p>
+                <p>2. Integre o silo com um dispositivo ESP32</p>
+                <p>3. Aguarde o ESP32 enviar os primeiros dados</p>
+              </div>
+            </div>
           </div>
         ) : (
           <>

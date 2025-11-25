@@ -4,13 +4,13 @@ import {
   ExclamationTriangleIcon,
   CloudIcon,
   ArrowTrendingUpIcon,
-  BoltIcon,
-  ChartBarIcon,
   BeakerIcon,
   FireIcon,
-  SparklesIcon
+  SparklesIcon,
+  XCircleIcon
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
+import api from '../../services/api';
 
 const ANALYTICS_API = import.meta.env.VITE_ANALYTICS_API_URL || 'http://localhost:8000';
 
@@ -18,6 +18,7 @@ const MetricCards = ({ silos }) => {
   const [weatherData, setWeatherData] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [metrics, setMetrics] = useState(null);
+  const [siloStats, setSiloStats] = useState({ total: 0, ativos: 0, inativos: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ const MetricCards = ({ silos }) => {
   const fetchAllData = async () => {
     setLoading(true);
     await Promise.all([
+      fetchSiloStatistics(),
       fetchMetrics(),
       fetchWeatherData(),
       fetchAnalytics()
@@ -34,22 +36,33 @@ const MetricCards = ({ silos }) => {
     setLoading(false);
   };
 
+  const fetchSiloStatistics = async () => {
+    try {
+      const response = await api.get('/api/silos/estatisticas');
+      if (response.data.success) {
+        setSiloStats(response.data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
+      setSiloStats({
+        total: silos.length,
+        ativos: silos.filter(s => s.integrado).length,
+        inativos: silos.filter(s => !s.integrado).length
+      });
+    }
+  };
+
   const fetchMetrics = async () => {
     try {
-      console.log('🔄 Buscando métricas globais...');
       const response = await axios.get(`${ANALYTICS_API}/api/metrics/global`);
-      console.log('📊 Resposta métricas:', response.data);
       
       if (response.data.success && response.data.data) {
         setMetrics(response.data.data);
-        console.log('✅ Métricas carregadas:', response.data.data);
       } else {
-        console.warn('⚠️ Resposta sem dados válidos');
         setMetrics(calculateLocalMetrics());
       }
     } catch (error) {
-      console.error('❌ Erro ao buscar métricas:', error.response?.data || error.message);
-      console.log('🔄 Usando cálculo local como fallback');
+      console.error('Erro ao buscar métricas:', error);
       setMetrics(calculateLocalMetrics());
     }
   };
@@ -93,24 +106,17 @@ const MetricCards = ({ silos }) => {
   };
 
   const fetchAnalytics = async () => {
-    if (silos.length === 0) {
-      console.log('⚠️ Sem silos para buscar analytics');
-      return;
-    }
+    if (silos.length === 0) return;
     
     try {
       const deviceId = silos[0].dispositivo;
-      console.log('🔄 Buscando anomalias para:', deviceId);
-      
       const response = await axios.get(
         `${ANALYTICS_API}/api/analytics/anomalias/${deviceId}?hours=24`
       );
       
-      console.log('📊 Resposta anomalias:', response.data);
       setAnalytics(response.data);
     } catch (error) {
-      console.error('❌ Erro ao buscar analytics:', error.response?.data || error.message);
-      // Não falhar silenciosamente
+      console.error('Erro ao buscar analytics:', error);
       setAnalytics({ total_anomalias: 0 });
     }
   };
@@ -131,18 +137,36 @@ const MetricCards = ({ silos }) => {
 
   const cards = [
     {
+      title: 'Total de Silos',
+      value: siloStats.total,
+      subtitle: `${siloStats.total} cadastrados`,
+      icon: CheckCircleIcon,
+      color: 'blue',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600'
+    },
+    {
       title: 'Silos Ativos',
-      value: metrics.silos_ativos,
-      subtitle: `${metrics.silos_ativos} dispositivos online`,
+      value: siloStats.ativos,
+      subtitle: 'Integrados',
       icon: CheckCircleIcon,
       color: 'green',
       bgColor: 'bg-green-50',
       iconColor: 'text-green-600'
     },
     {
+      title: 'Silos Inativos',
+      value: siloStats.inativos,
+      subtitle: 'Aguardando',
+      icon: XCircleIcon,
+      color: siloStats.inativos > 0 ? 'gray' : 'green',
+      bgColor: siloStats.inativos > 0 ? 'bg-gray-50' : 'bg-green-50',
+      iconColor: siloStats.inativos > 0 ? 'text-gray-600' : 'text-green-600'
+    },
+    {
       title: 'Silos em Alerta',
       value: metrics.silos_em_alerta,
-      subtitle: metrics.silos_em_alerta > 0 ? 'Requer atenção' : 'Tudo normal',
+      subtitle: metrics.silos_em_alerta > 0 ? 'Atenção' : 'Normal',
       icon: ExclamationTriangleIcon,
       color: metrics.silos_em_alerta > 0 ? 'red' : 'green',
       bgColor: metrics.silos_em_alerta > 0 ? 'bg-red-50' : 'bg-green-50',
@@ -151,7 +175,7 @@ const MetricCards = ({ silos }) => {
     {
       title: 'Clima Externo',
       value: weatherData ? `${weatherData.temperature_2m?.toFixed(1)}°C` : '--',
-      subtitle: weatherData ? `${weatherData.relative_humidity_2m}% umid | ${weatherData.pressure_msl?.toFixed(0)} hPa` : 'Carregando...',
+      subtitle: weatherData ? `${weatherData.relative_humidity_2m}% umid` : 'Carregando...',
       icon: CloudIcon,
       color: 'blue',
       bgColor: 'bg-blue-50',
@@ -160,7 +184,7 @@ const MetricCards = ({ silos }) => {
     {
       title: 'Temp. Média',
       value: `${metrics.temperatura.media.toFixed(1)}°C`,
-      subtitle: `Variação: ${metrics.temperatura.variacao.toFixed(1)}°C`,
+      subtitle: `Var: ${metrics.temperatura.variacao.toFixed(1)}°C`,
       icon: FireIcon,
       color: 'orange',
       bgColor: 'bg-orange-50',
@@ -169,7 +193,7 @@ const MetricCards = ({ silos }) => {
     {
       title: 'Umid. Média',
       value: `${metrics.umidade.media.toFixed(1)}%`,
-      subtitle: `Min: ${metrics.umidade.minima.toFixed(1)}% | Max: ${metrics.umidade.maxima.toFixed(1)}%`,
+      subtitle: `${metrics.umidade.minima.toFixed(1)}% - ${metrics.umidade.maxima.toFixed(1)}%`,
       icon: BeakerIcon,
       color: 'cyan',
       bgColor: 'bg-cyan-50',
@@ -178,7 +202,7 @@ const MetricCards = ({ silos }) => {
     {
       title: 'Anomalias 24h',
       value: analytics?.total_anomalias || 0,
-      subtitle: analytics ? 'Detecções via IA' : 'Carregando...',
+      subtitle: 'Detecções IA',
       icon: SparklesIcon,
       color: analytics?.total_anomalias > 0 ? 'yellow' : 'green',
       bgColor: analytics?.total_anomalias > 0 ? 'bg-yellow-50' : 'bg-green-50',
@@ -187,29 +211,11 @@ const MetricCards = ({ silos }) => {
     {
       title: 'Tendência',
       value: metrics.temperatura.media > 30 ? '↑ Subindo' : metrics.temperatura.media < 20 ? '↓ Caindo' : '→ Estável',
-      subtitle: 'Baseado em análise preditiva',
+      subtitle: 'Análise preditiva',
       icon: ArrowTrendingUpIcon,
       color: 'purple',
       bgColor: 'bg-purple-50',
       iconColor: 'text-purple-600'
-    },
-    {
-      title: 'Consumo Energia',
-      value: 'Baixo',
-      subtitle: 'Otimizado para economia',
-      icon: BoltIcon,
-      color: 'green',
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
-    },
-    {
-      title: 'Performance',
-      value: '98%',
-      subtitle: 'Eficiência operacional',
-      icon: ChartBarIcon,
-      color: 'indigo',
-      bgColor: 'bg-indigo-50',
-      iconColor: 'text-indigo-600'
     }
   ];
 

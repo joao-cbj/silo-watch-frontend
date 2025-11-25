@@ -5,7 +5,7 @@ import {
   PencilIcon,
   CheckCircleIcon,
   XCircleIcon,
-  LinkIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
 const SiloListTab = () => {
@@ -14,6 +14,7 @@ const SiloListTab = () => {
   const [error, setError] = useState(null);
   const [editingSilo, setEditingSilo] = useState(null);
   const [editFormData, setEditFormData] = useState({ nome: "", tipoSilo: "" });
+  const [deleteModal, setDeleteModal] = useState({ show: false, silo: null });
 
   const tiposSilo = [
     { value: "superficie", label: "Superfície" },
@@ -44,18 +45,31 @@ const SiloListTab = () => {
     fetchSilos();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Tem certeza que deseja deletar este silo?")) return;
+  const handleDeleteClick = (silo) => {
+    setDeleteModal({ show: true, silo });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const { silo } = deleteModal;
+    
     try {
-      const response = await api.delete(`/api/silos/${id}`);
+      const response = await api.delete(`/api/silos/${silo._id}`);
 
       if (response.data.success) {
-        setSilos((prev) => prev.filter((silo) => silo._id !== id));
+        setSilos((prev) => prev.filter((s) => s._id !== silo._id));
+        
+        // Mostra quantos dados foram deletados
+        if (response.data.dadosDeletados > 0) {
+          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.`);
+        } else {
+          alert("✓ Silo deletado com sucesso!");
+        }
       }
     } catch (err) {
       console.error("Erro ao deletar silo:", err);
       alert(err.response?.data?.error || "Erro ao deletar silo");
+    } finally {
+      setDeleteModal({ show: false, silo: null });
     }
   };
 
@@ -118,6 +132,59 @@ const SiloListTab = () => {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      {/* Modal de Confirmação de Deleção */}
+      {deleteModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Confirmar Exclusão
+                </h3>
+                <p className="text-sm text-gray-500">Esta ação não pode ser desfeita</p>
+              </div>
+            </div>
+
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-gray-700 mb-2">
+                Você está prestes a deletar o silo:{" "}
+                <strong className="text-gray-900">{deleteModal.silo?.nome}</strong>
+              </p>
+              
+              {deleteModal.silo?.integrado && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                  <p className="text-sm text-red-800 font-medium">
+                    ⚠️ ATENÇÃO: Este silo está integrado!
+                  </p>
+                  <p className="text-sm text-red-700 mt-1">
+                    Todas as leituras de temperatura e umidade deste dispositivo 
+                    também serão permanentemente excluídas.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteModal({ show: false, silo: null })}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+              >
+                Sim, deletar tudo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <div>
           <h3 className="text-2xl font-bold text-gray-800">Lista de Silos</h3>
@@ -267,7 +334,7 @@ const SiloListTab = () => {
                           <PencilIcon className="h-5 w-5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(silo._id)}
+                          onClick={() => handleDeleteClick(silo)}
                           className="text-red-600 hover:text-red-800 transition inline-flex items-center"
                           title="Deletar"
                         >

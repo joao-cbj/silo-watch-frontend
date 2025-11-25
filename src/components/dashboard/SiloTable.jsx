@@ -1,8 +1,6 @@
 import React from 'react';
 import { 
   ExclamationTriangleIcon, 
-  SignalIcon, 
-  BoltIcon,
   FunnelIcon
 } from '@heroicons/react/24/solid';
 import { WiThermometer, WiHumidity } from 'react-icons/wi';
@@ -10,12 +8,12 @@ import { TbWindmill } from 'react-icons/tb';
 
 const SiloTable = ({ silos }) => {
   const tiposSilo = {
-    'trincheira': { label: 'Trincheira', color: 'bg-blue-100 text-blue-800' },
     'superficie': { label: 'Superfície', color: 'bg-green-100 text-green-800' },
-    'bags': { label: 'Bolsas', color: 'bg-purple-100 text-purple-800' },
-    'aereos': { label: 'Aéreos', color: 'bg-orange-100 text-orange-800' },
-    'cisterna': { label: 'Cisterna', color: 'bg-cyan-100 text-cyan-800' }
+    'trincheira': { label: 'Trincheira', color: 'bg-blue-100 text-blue-800' },
+    'cilindrico': { label: 'Cilíndrico', color: 'bg-purple-100 text-purple-800' },
+    'silo-bolsa': { label: 'Silo-Bolsa', color: 'bg-orange-100 text-orange-800' }
   };
+
   const getAlertIcon = (value, maxValue, type = 'temp') => {
     if (value >= maxValue) {
       return (
@@ -26,30 +24,6 @@ const SiloTable = ({ silos }) => {
       );
     }
     return <div className="h-5 w-5" />;
-  };
-
-  const getSignalIcon = (signal = 'good') => {
-    const colors = {
-      good: 'text-green-500',
-      medium: 'text-yellow-500',
-      poor: 'text-red-500'
-    };
-    return <SignalIcon className={`h-5 w-5 ${colors[signal]}`} />;
-  };
-
-  const getBatteryIcon = (level = 100) => {
-    let color = 'text-green-500';
-    if (level < 20) color = 'text-red-500';
-    else if (level < 50) color = 'text-yellow-500';
-    
-    return (
-      <div className="relative">
-        <BoltIcon className={`h-5 w-5 ${color}`} />
-        <span className="text-xs absolute -bottom-1 -right-1 font-bold">
-          {level}%
-        </span>
-      </div>
-    );
   };
 
   const formatTimestamp = (timestamp) => {
@@ -95,12 +69,6 @@ const SiloTable = ({ silos }) => {
               <th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider">
                 CO₂
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                Sinal
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                Bateria
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -116,13 +84,13 @@ const SiloTable = ({ silos }) => {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    tiposSilo[silo.tipo?.toLowerCase()] 
-                      ? tiposSilo[silo.tipo.toLowerCase()].color 
+                    tiposSilo[silo.tipoSilo?.toLowerCase()] 
+                      ? tiposSilo[silo.tipoSilo.toLowerCase()].color 
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {silo.tipo 
-                      ? tiposSilo[silo.tipo.toLowerCase()]?.label || silo.tipo 
-                      : 'Trincheira'}
+                    {silo.tipoSilo 
+                      ? tiposSilo[silo.tipoSilo.toLowerCase()]?.label || silo.tipoSilo 
+                      : '-'}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-center">
@@ -165,12 +133,6 @@ const SiloTable = ({ silos }) => {
                   ) : (
                     <div className="h-5 w-5 mx-auto" />
                   )}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">
-                  {getSignalIcon(silo.signal || 'good')}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">
-                  {getBatteryIcon(silo.battery || 100)}
                 </td>
               </tr>
             ))}
