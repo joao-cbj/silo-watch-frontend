@@ -6,6 +6,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ExclamationTriangleIcon,
+  LinkSlashIcon,
 } from "@heroicons/react/24/outline";
 
 const SiloListTab = () => {
@@ -15,6 +16,8 @@ const SiloListTab = () => {
   const [editingSilo, setEditingSilo] = useState(null);
   const [editFormData, setEditFormData] = useState({ nome: "", tipoSilo: "" });
   const [deleteModal, setDeleteModal] = useState({ show: false, silo: null });
+  const [desintegrarModal, setDesintegrarModal] = useState({ show: false, silo: null });
+  const [processando, setProcessando] = useState(false);
 
   const tiposSilo = [
     { value: "superficie", label: "Superfície" },
@@ -51,6 +54,7 @@ const SiloListTab = () => {
 
   const handleDeleteConfirm = async () => {
     const { silo } = deleteModal;
+    setProcessando(true);
     
     try {
       const response = await api.delete(`/api/silos/${silo._id}`);
@@ -58,9 +62,8 @@ const SiloListTab = () => {
       if (response.data.success) {
         setSilos((prev) => prev.filter((s) => s._id !== silo._id));
         
-        // Mostra quantos dados foram deletados
         if (response.data.dadosDeletados > 0) {
-          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.`);
+          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.\n${silo.integrado ? 'Comando de reset enviado ao ESP32.' : ''}`);
         } else {
           alert("✓ Silo deletado com sucesso!");
         }
@@ -69,7 +72,37 @@ const SiloListTab = () => {
       console.error("Erro ao deletar silo:", err);
       alert(err.response?.data?.error || "Erro ao deletar silo");
     } finally {
+      setProcessando(false);
       setDeleteModal({ show: false, silo: null });
+    }
+  };
+
+  // ✨ NOVO: Desintegrar silo
+  const handleDesintegrarClick = (silo) => {
+    setDesintegrarModal({ show: true, silo });
+  };
+
+  const handleDesintegrarConfirm = async () => {
+    const { silo } = desintegrarModal;
+    setProcessando(true);
+    
+    try {
+      const response = await api.post("/api/mqtt-provisioning/desintegrar", {
+        siloId: silo._id
+      });
+
+      if (response.data.success) {
+        // Atualiza lista
+        await fetchSilos();
+        
+        alert(`✓ ${response.data.message}\nO ESP32 foi resetado e voltou ao modo SETUP.`);
+      }
+    } catch (err) {
+      console.error("Erro ao desintegrar:", err);
+      alert(err.response?.data?.error || "Erro ao desintegrar silo");
+    } finally {
+      setProcessando(false);
+      setDesintegrarModal({ show: false, silo: null });
     }
   };
 
@@ -86,7 +119,10 @@ const SiloListTab = () => {
     setEditFormData({ nome: "", tipoSilo: "" });
   };
 
+  // ✨ ATUALIZADO: Atualiza silo + envia comando ao ESP32
   const handleSaveEdit = async (id) => {
+    setProcessando(true);
+    
     try {
       const response = await api.put(`/api/silos/${id}`, editFormData);
 
@@ -97,10 +133,19 @@ const SiloListTab = () => {
           )
         );
         setEditingSilo(null);
+        
+        // Mostra mensagem de sucesso
+        if (response.data.dadosAtualizados) {
+          alert(`✓ Silo atualizado!\n${response.data.dadosAtualizados} leituras históricas também foram atualizadas.\nComando enviado ao ESP32.`);
+        } else {
+          alert("✓ Silo atualizado com sucesso!");
+        }
       }
     } catch (err) {
       console.error("Erro ao atualizar silo:", err);
       alert(err.response?.data?.error || "Erro ao atualizar silo");
+    } finally {
+      setProcessando(false);
     }
   };
 
@@ -132,7 +177,7 @@ const SiloListTab = () => {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
-      {/* Modal de Confirmação de Deleção */}
+      {/* Modal de Deleção */}
       {deleteModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
@@ -160,8 +205,7 @@ const SiloListTab = () => {
                     ⚠️ ATENÇÃO: Este silo está integrado!
                   </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Todas as leituras de temperatura e umidade deste dispositivo 
-                    também serão permanentemente excluídas.
+                    Todas as leituras serão excluídas e um comando de RESET será enviado ao ESP32.
                   </p>
                 </div>
               )}
@@ -170,15 +214,72 @@ const SiloListTab = () => {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteModal({ show: false, silo: null })}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+                disabled={processando}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+                disabled={processando}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50"
               >
-                Sim, deletar tudo
+                {processando ? "Deletando..." : "Sim, deletar tudo"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✨ NOVO: Modal de Desintegração */}
+      {desintegrarModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                <LinkSlashIcon className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Confirmar Desintegração
+                </h3>
+                <p className="text-sm text-gray-500">Desvincular ESP32 do sistema</p>
+              </div>
+            </div>
+
+            <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-sm text-gray-700 mb-2">
+                Desintegrar o silo:{" "}
+                <strong className="text-gray-900">{desintegrarModal.silo?.nome}</strong>
+              </p>
+              
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p className="text-sm text-blue-800 font-medium">
+                  📡 O que acontecerá:
+                </p>
+                <ul className="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
+                  <li>ESP32 receberá comando de RESET</li>
+                  <li>Voltará ao modo SETUP (BLE)</li>
+                  <li>Silo ficará disponível para nova integração</li>
+                  <li>Dados históricos serão mantidos no banco</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDesintegrarModal({ show: false, silo: null })}
+                disabled={processando}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDesintegrarConfirm}
+                disabled={processando}
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium disabled:opacity-50"
+              >
+                {processando ? "Desintegrando..." : "Sim, desintegrar"}
               </button>
             </div>
           </div>
@@ -194,7 +295,8 @@ const SiloListTab = () => {
         </div>
         <button
           onClick={fetchSilos}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+          disabled={processando}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-50"
         >
           Atualizar
         </button>
@@ -246,7 +348,8 @@ const SiloListTab = () => {
                               nome: e.target.value,
                             }))
                           }
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                          disabled={processando}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -258,7 +361,8 @@ const SiloListTab = () => {
                               tipoSilo: e.target.value,
                             }))
                           }
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                          disabled={processando}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
                         >
                           {tiposSilo.map((tipo) => (
                             <option key={tipo.value} value={tipo.value}>
@@ -284,13 +388,15 @@ const SiloListTab = () => {
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleSaveEdit(silo._id)}
-                          className="text-green-600 hover:text-green-800 mr-3"
+                          disabled={processando}
+                          className="text-green-600 hover:text-green-800 mr-3 disabled:opacity-50"
                         >
                           <CheckCircleIcon className="h-5 w-5" />
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="text-gray-600 hover:text-gray-800"
+                          disabled={processando}
+                          className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
                         >
                           <XCircleIcon className="h-5 w-5" />
                         </button>
@@ -328,14 +434,29 @@ const SiloListTab = () => {
                       <td className="px-4 py-3 text-right space-x-2">
                         <button
                           onClick={() => handleEdit(silo)}
-                          className="text-blue-600 hover:text-blue-800 transition inline-flex items-center"
+                          disabled={processando}
+                          className="text-blue-600 hover:text-blue-800 transition inline-flex items-center disabled:opacity-50"
                           title="Editar"
                         >
                           <PencilIcon className="h-5 w-5" />
                         </button>
+                        
+                        {/* ✨ NOVO: Botão Desintegrar */}
+                        {silo.integrado && (
+                          <button
+                            onClick={() => handleDesintegrarClick(silo)}
+                            disabled={processando}
+                            className="text-orange-600 hover:text-orange-800 transition inline-flex items-center disabled:opacity-50"
+                            title="Desintegrar"
+                          >
+                            <LinkSlashIcon className="h-5 w-5" />
+                          </button>
+                        )}
+                        
                         <button
                           onClick={() => handleDeleteClick(silo)}
-                          className="text-red-600 hover:text-red-800 transition inline-flex items-center"
+                          disabled={processando}
+                          className="text-red-600 hover:text-red-800 transition inline-flex items-center disabled:opacity-50"
                           title="Deletar"
                         >
                           <TrashIcon className="h-5 w-5" />
