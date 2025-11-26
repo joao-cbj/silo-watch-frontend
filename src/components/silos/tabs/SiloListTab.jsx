@@ -328,6 +328,9 @@ const SiloListTab = () => {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Dispositivo
                 </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  MAC Address
+                </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Ações
                 </th>
@@ -385,6 +388,9 @@ const SiloListTab = () => {
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {silo.dispositivo || "-"}
                       </td>
+                      <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                        {silo.macAddress || "-"}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleSaveEdit(silo._id)}
@@ -430,6 +436,9 @@ const SiloListTab = () => {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {silo.dispositivo || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                        {silo.macAddress || "-"}
                       </td>
                       <td className="px-4 py-3 text-right space-x-2">
                         <button
