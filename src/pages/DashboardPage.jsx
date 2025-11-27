@@ -144,7 +144,7 @@ const DashboardPage = () => {
                 <li>• Os dispositivos ESP32 ainda não enviaram dados</li>
               </ul>
               <div className="mt-4 text-xs text-gray-500">
-                <p>Para resolver, vá em <strong>Configurações → Silos</strong> e:</p>
+                <p>Para resolver, vá em <strong>Gerenciar Silos → Adicionar Silo</strong> e:</p>
                 <p>1. Cadastre um novo silo</p>
                 <p>2. Integre o silo com um dispositivo ESP32</p>
                 <p>3. Aguarde o ESP32 enviar os primeiros dados</p>
