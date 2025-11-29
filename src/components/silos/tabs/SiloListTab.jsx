@@ -166,7 +166,7 @@ const SiloListTab = () => {
   }
 
   return (
-    <div className="p-6 h-full overflow-y-auto">
+    <div className="p-6 h-full overflow-y-auto" style={{ maxWidth: '100%' }}>
       {/* Modal de Deleção */}
       {deleteModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -300,27 +300,35 @@ const SiloListTab = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden" style={{ maxWidth: '100%' }}>
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed" style={{ width: '100%' }}>
+            <table className="w-full table-fixed">
+              <colgroup>
+                <col style={{ width: '18%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '24%' }} />
+                <col style={{ width: '18%' }} />
+                <col style={{ width: '12%' }} />
+              </colgroup>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '20%' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                     Nome
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                     Tipo
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                     Status
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '25%' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                     Dispositivo
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                     MAC
                   </th>
-                  <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase" style={{ width: '10%' }}>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
                     Ações
                   </th>
                 </tr>
@@ -330,7 +338,7 @@ const SiloListTab = () => {
                   <tr key={silo._id} className="hover:bg-gray-50 transition">
                     {editingSilo === silo._id ? (
                       <>
-                        <td className="px-3 py-2">
+                        <td className="px-4 py-3">
                           <input
                             type="text"
                             value={editFormData.nome}
@@ -341,10 +349,10 @@ const SiloListTab = () => {
                               }))
                             }
                             disabled={processando}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
                           />
                         </td>
-                        <td className="px-3 py-2">
+                        <td className="px-4 py-3">
                           <select
                             value={editFormData.tipoSilo}
                             onChange={(e) =>
@@ -354,7 +362,7 @@ const SiloListTab = () => {
                               }))
                             }
                             disabled={processando}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
                           >
                             {tiposSilo.map((tipo) => (
                               <option key={tipo.value} value={tipo.value}>
@@ -363,7 +371,7 @@ const SiloListTab = () => {
                             ))}
                           </select>
                         </td>
-                        <td className="px-3 py-2">
+                        <td className="px-4 py-3">
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                               silo.integrado
@@ -374,24 +382,24 @@ const SiloListTab = () => {
                             {silo.integrado ? "Integrado" : "Não integrado"}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-xs text-gray-600">
+                        <td className="px-4 py-3 text-sm text-gray-600">
                           <div className="truncate" title={silo.dispositivo || "-"}>
                             {silo.dispositivo || "-"}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-xs font-mono text-gray-600">
+                        <td className="px-4 py-3 text-sm font-mono text-gray-600">
                           <div className="truncate" title={silo.macAddress || "-"}>
                             {silo.macAddress ? silo.macAddress.substring(12) : "-"}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-center">
+                        <td className="px-4 py-3 text-center">
                           <button
                             onClick={() => handleSaveEdit(silo._id)}
                             disabled={processando}
                             className="text-green-600 hover:text-green-800 mr-2 disabled:opacity-50"
                             title="Salvar"
                           >
-                            <CheckCircleIcon className="h-4 w-4" />
+                            <CheckCircleIcon className="h-5 w-5" />
                           </button>
                           <button
                             onClick={handleCancelEdit}
@@ -399,23 +407,23 @@ const SiloListTab = () => {
                             className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
                             title="Cancelar"
                           >
-                            <XCircleIcon className="h-4 w-4" />
+                            <XCircleIcon className="h-5 w-5" />
                           </button>
                         </td>
                       </>
                     ) : (
                       <>
-                        <td className="px-3 py-2 font-medium text-gray-900 text-sm">
+                        <td className="px-4 py-3 font-medium text-gray-900 text-sm">
                           <div className="truncate" title={silo.nome}>
                             {silo.nome}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-xs text-gray-600">
+                        <td className="px-4 py-3 text-sm text-gray-600">
                           {getTipoLabel(silo.tipoSilo)}
                         </td>
-                        <td className="px-3 py-2">
+                        <td className="px-4 py-3">
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                               silo.integrado
                                 ? "bg-green-100 text-green-800"
                                 : "bg-gray-100 text-gray-800"
@@ -431,25 +439,25 @@ const SiloListTab = () => {
                             )}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-xs text-gray-600 font-mono">
+                        <td className="px-4 py-3 text-sm text-gray-600 font-mono">
                           <div className="truncate" title={silo.dispositivo || "-"}>
-                            {silo.dispositivo ? `${silo.dispositivo.substring(0, 12)}...` : "-"}
+                            {silo.dispositivo ? `${silo.dispositivo.substring(0, 8)}...${silo.dispositivo.substring(silo.dispositivo.length - 4)}` : "-"}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-xs font-mono text-gray-600">
+                        <td className="px-4 py-3 text-sm font-mono text-gray-600">
                           <div className="truncate" title={silo.macAddress || "-"}>
-                            {silo.macAddress ? silo.macAddress.substring(12) : "-"}
+                            {silo.macAddress ? `...${silo.macAddress.substring(12)}` : "-"}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center gap-1">
+                        <td className="px-4 py-3 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => handleEdit(silo)}
                               disabled={processando}
                               className="text-blue-600 hover:text-blue-800 transition disabled:opacity-50"
                               title="Editar"
                             >
-                              <PencilIcon className="h-4 w-4" />
+                              <PencilIcon className="h-5 w-5" />
                             </button>
                             
                             {silo.integrado && (
@@ -459,7 +467,7 @@ const SiloListTab = () => {
                                 className="text-orange-600 hover:text-orange-800 transition disabled:opacity-50"
                                 title="Desintegrar"
                               >
-                                <LinkSlashIcon className="h-4 w-4" />
+                                <LinkSlashIcon className="h-5 w-5" />
                               </button>
                             )}
                             
@@ -469,7 +477,7 @@ const SiloListTab = () => {
                               className="text-red-600 hover:text-red-800 transition disabled:opacity-50"
                               title="Deletar"
                             >
-                              <TrashIcon className="h-4 w-4" />
+                              <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
                         </td>
