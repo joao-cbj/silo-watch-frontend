@@ -63,7 +63,7 @@ const SiloListTab = () => {
         setSilos((prev) => prev.filter((s) => s._id !== silo._id));
         
         if (response.data.dadosDeletados > 0) {
-          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.\n${silo.integrado ? 'Comando de reset enviado ao ESP32.' : ''}`);
+          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.\n${silo.integrado ? 'Pressione o botão do ESP32 por 3 segundos para resetar.' : ''}`);
         } else {
           alert("✓ Silo deletado com sucesso!");
         }
@@ -77,7 +77,6 @@ const SiloListTab = () => {
     }
   };
 
-  // ✨ NOVO: Desintegrar silo
   const handleDesintegrarClick = (silo) => {
     setDesintegrarModal({ show: true, silo });
   };
@@ -92,10 +91,8 @@ const SiloListTab = () => {
       });
 
       if (response.data.success) {
-        // Atualiza lista
         await fetchSilos();
-        
-        alert(`✓ ${response.data.message}\nO ESP32 foi resetado e voltou ao modo SETUP.`);
+        alert(`✓ ${response.data.message}`);
       }
     } catch (err) {
       console.error("Erro ao desintegrar:", err);
@@ -119,7 +116,6 @@ const SiloListTab = () => {
     setEditFormData({ nome: "", tipoSilo: "" });
   };
 
-  // ✨ ATUALIZADO: Atualiza silo + envia comando ao ESP32
   const handleSaveEdit = async (id) => {
     setProcessando(true);
     
@@ -133,13 +129,7 @@ const SiloListTab = () => {
           )
         );
         setEditingSilo(null);
-        
-        // Mostra mensagem de sucesso
-        if (response.data.dadosAtualizados) {
-          alert(`✓ Silo atualizado!\n${response.data.dadosAtualizados} leituras históricas também foram atualizadas.\nComando enviado ao ESP32.`);
-        } else {
-          alert("✓ Silo atualizado com sucesso!");
-        }
+        alert("✓ Silo atualizado com sucesso!");
       }
     } catch (err) {
       console.error("Erro ao atualizar silo:", err);
@@ -194,7 +184,7 @@ const SiloListTab = () => {
             </div>
 
             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-gray-700 mb-2 break-words">
                 Você está prestes a deletar o silo:{" "}
                 <strong className="text-gray-900">{deleteModal.silo?.nome}</strong>
               </p>
@@ -205,7 +195,7 @@ const SiloListTab = () => {
                     ⚠️ ATENÇÃO: Este silo está integrado!
                   </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Todas as leituras serão excluídas e um comando de RESET será enviado ao ESP32.
+                    Todas as leituras serão excluídas. Pressione o botão do ESP32 por 3 segundos para resetar.
                   </p>
                 </div>
               )}
@@ -231,7 +221,7 @@ const SiloListTab = () => {
         </div>
       )}
 
-      {/* ✨ NOVO: Modal de Desintegração */}
+      {/* Modal de Desintegração */}
       {desintegrarModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
@@ -248,7 +238,7 @@ const SiloListTab = () => {
             </div>
 
             <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-gray-700 mb-2 break-words">
                 Desintegrar o silo:{" "}
                 <strong className="text-gray-900">{desintegrarModal.silo?.nome}</strong>
               </p>
@@ -258,9 +248,9 @@ const SiloListTab = () => {
                   📡 O que acontecerá:
                 </p>
                 <ul className="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
-                  <li>ESP32 receberá comando de RESET</li>
-                  <li>Voltará ao modo SETUP (BLE)</li>
-                  <li>Silo ficará disponível para nova integração</li>
+                  <li>Silo será desvinculado no sistema</li>
+                  <li>Pressione o botão do ESP32 por 3s para resetar</li>
+                  <li>Após reset, ficará disponível para nova integração</li>
                   <li>Dados históricos serão mantidos no banco</li>
                 </ul>
               </div>
@@ -312,26 +302,26 @@ const SiloListTab = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+          <table className="w-full min-w-max">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[150px]">
                   Nome
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">
                   Tipo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px]">
                   Dispositivo
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px]">
                   MAC Address
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">
                   Ações
                 </th>
               </tr>
@@ -385,10 +375,10 @@ const SiloListTab = () => {
                           {silo.integrado ? "Integrado" : "Não integrado"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600 truncate max-w-[180px]" title={silo.dispositivo || "-"}>
                         {silo.dispositivo || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                      <td className="px-4 py-3 text-sm font-mono text-gray-600 truncate max-w-[180px]" title={silo.macAddress || "-"}>
                         {silo.macAddress || "-"}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -410,7 +400,7 @@ const SiloListTab = () => {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td className="px-4 py-3 font-medium text-gray-900 truncate max-w-[150px]" title={silo.nome}>
                         {silo.nome}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
@@ -418,7 +408,7 @@ const SiloListTab = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                             silo.integrado
                               ? "bg-green-100 text-green-800"
                               : "bg-gray-100 text-gray-800"
@@ -434,13 +424,13 @@ const SiloListTab = () => {
                           )}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600 font-mono truncate max-w-[180px]" title={silo.dispositivo || "-"}>
                         {silo.dispositivo || "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm font-mono text-gray-600">
+                      <td className="px-4 py-3 text-sm font-mono text-gray-600 truncate max-w-[180px]" title={silo.macAddress || "-"}>
                         {silo.macAddress || "-"}
                       </td>
-                      <td className="px-4 py-3 text-right space-x-2">
+                      <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                         <button
                           onClick={() => handleEdit(silo)}
                           disabled={processando}
@@ -450,7 +440,6 @@ const SiloListTab = () => {
                           <PencilIcon className="h-5 w-5" />
                         </button>
                         
-                        {/* ✨ NOVO: Botão Desintegrar */}
                         {silo.integrado && (
                           <button
                             onClick={() => handleDesintegrarClick(silo)}
