@@ -170,32 +170,31 @@ const SiloListTab = () => {
       {/* Modal de Deleção */}
       {deleteModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Confirmar Exclusão
                 </h3>
-                <p className="text-sm text-gray-500">Esta ação não pode ser desfeita</p>
+                <p className="text-xs text-gray-500">Esta ação não pode ser desfeita</p>
               </div>
             </div>
 
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-gray-700 mb-2 break-words">
-                Você está prestes a deletar o silo:{" "}
-                <strong className="text-gray-900">{deleteModal.silo?.nome}</strong>
+                Deletar: <strong className="text-gray-900">{deleteModal.silo?.nome}</strong>
               </p>
               
               {deleteModal.silo?.integrado && (
-                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
-                  <p className="text-sm text-red-800 font-medium">
-                    ⚠️ ATENÇÃO: Este silo está integrado!
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                  <p className="text-xs text-red-800 font-medium">
+                    ⚠️ Silo integrado!
                   </p>
-                  <p className="text-sm text-red-700 mt-1">
-                    Todas as leituras serão excluídas. Pressione o botão do ESP32 por <strong>5 segundos</strong> para resetar.
+                  <p className="text-xs text-red-700 mt-1">
+                    Leituras serão excluídas. Pressione botão do ESP32 por <strong>5s</strong>.
                   </p>
                 </div>
               )}
@@ -205,16 +204,16 @@ const SiloListTab = () => {
               <button
                 onClick={() => setDeleteModal({ show: false, silo: null })}
                 disabled={processando}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={processando}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium disabled:opacity-50"
               >
-                {processando ? "Deletando..." : "Sim, deletar tudo"}
+                {processando ? "Deletando..." : "Deletar"}
               </button>
             </div>
           </div>
@@ -224,34 +223,33 @@ const SiloListTab = () => {
       {/* Modal de Desintegração */}
       {desintegrarModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                <LinkSlashIcon className="h-6 w-6 text-orange-600" />
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                <LinkSlashIcon className="h-5 w-5 text-orange-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Confirmar Desintegração
                 </h3>
-                <p className="text-sm text-gray-500">Desvincular ESP32 do sistema</p>
+                <p className="text-xs text-gray-500">Desvincular ESP32</p>
               </div>
             </div>
 
-            <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="mb-6 p-3 bg-orange-50 border border-orange-200 rounded-lg">
               <p className="text-sm text-gray-700 mb-2 break-words">
-                Desintegrar o silo:{" "}
-                <strong className="text-gray-900">{desintegrarModal.silo?.nome}</strong>
+                Desintegrar: <strong className="text-gray-900">{desintegrarModal.silo?.nome}</strong>
               </p>
               
-              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                <p className="text-sm text-blue-800 font-medium">
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                <p className="text-xs text-blue-800 font-medium mb-1">
                   📡 O que acontecerá:
                 </p>
-                <ul className="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
-                  <li>Silo será desvinculado no sistema</li>
-                  <li>Pressione o botão do ESP32 por <strong>5 segundos</strong> para resetar</li>
-                  <li>Após reset, ficará disponível para nova integração</li>
-                  <li>Dados históricos serão mantidos no banco</li>
+                <ul className="text-xs text-blue-700 space-y-0.5 list-disc list-inside">
+                  <li>Desvinculado no sistema</li>
+                  <li>Pressione botão ESP32 por <strong>5s</strong></li>
+                  <li>Ficará em modo SETUP</li>
+                  <li>Dados históricos mantidos</li>
                 </ul>
               </div>
             </div>
@@ -260,16 +258,16 @@ const SiloListTab = () => {
               <button
                 onClick={() => setDesintegrarModal({ show: false, silo: null })}
                 disabled={processando}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDesintegrarConfirm}
                 disabled={processando}
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium disabled:opacity-50"
               >
-                {processando ? "Desintegrando..." : "Sim, desintegrar"}
+                {processando ? "Processando..." : "Desintegrar"}
               </button>
             </div>
           </div>
@@ -304,25 +302,25 @@ const SiloListTab = () => {
       ) : (
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed" style={{ minWidth: '900px' }}>
+            <table className="w-full table-fixed" style={{ width: '100%' }}>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '180px' }}>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '20%' }}>
                     Nome
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '130px' }}>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
                     Tipo
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '130px' }}>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '200px' }}>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '25%' }}>
                     Dispositivo
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '160px' }}>
-                    MAC Address
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style={{ width: '15%' }}>
+                    MAC
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider" style={{ width: '100px' }}>
+                  <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase" style={{ width: '10%' }}>
                     Ações
                   </th>
                 </tr>
@@ -332,7 +330,7 @@ const SiloListTab = () => {
                   <tr key={silo._id} className="hover:bg-gray-50 transition">
                     {editingSilo === silo._id ? (
                       <>
-                        <td className="px-4 py-3" style={{ width: '180px' }}>
+                        <td className="px-3 py-2">
                           <input
                             type="text"
                             value={editFormData.nome}
@@ -343,10 +341,10 @@ const SiloListTab = () => {
                               }))
                             }
                             disabled={processando}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
                           />
                         </td>
-                        <td className="px-4 py-3" style={{ width: '130px' }}>
+                        <td className="px-3 py-2">
                           <select
                             value={editFormData.tipoSilo}
                             onChange={(e) =>
@@ -356,7 +354,7 @@ const SiloListTab = () => {
                               }))
                             }
                             disabled={processando}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-xs disabled:opacity-50"
                           >
                             {tiposSilo.map((tipo) => (
                               <option key={tipo.value} value={tipo.value}>
@@ -365,7 +363,7 @@ const SiloListTab = () => {
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-3" style={{ width: '130px' }}>
+                        <td className="px-3 py-2">
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                               silo.integrado
@@ -376,46 +374,48 @@ const SiloListTab = () => {
                             {silo.integrado ? "Integrado" : "Não integrado"}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600" style={{ width: '200px' }}>
+                        <td className="px-3 py-2 text-xs text-gray-600">
                           <div className="truncate" title={silo.dispositivo || "-"}>
                             {silo.dispositivo || "-"}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm font-mono text-gray-600" style={{ width: '160px' }}>
+                        <td className="px-3 py-2 text-xs font-mono text-gray-600">
                           <div className="truncate" title={silo.macAddress || "-"}>
-                            {silo.macAddress || "-"}
+                            {silo.macAddress ? silo.macAddress.substring(12) : "-"}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right" style={{ width: '100px' }}>
+                        <td className="px-3 py-2 text-center">
                           <button
                             onClick={() => handleSaveEdit(silo._id)}
                             disabled={processando}
-                            className="text-green-600 hover:text-green-800 mr-3 disabled:opacity-50"
+                            className="text-green-600 hover:text-green-800 mr-2 disabled:opacity-50"
+                            title="Salvar"
                           >
-                            <CheckCircleIcon className="h-5 w-5" />
+                            <CheckCircleIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={handleCancelEdit}
                             disabled={processando}
                             className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                            title="Cancelar"
                           >
-                            <XCircleIcon className="h-5 w-5" />
+                            <XCircleIcon className="h-4 w-4" />
                           </button>
                         </td>
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-3 font-medium text-gray-900" style={{ width: '180px' }}>
+                        <td className="px-3 py-2 font-medium text-gray-900 text-sm">
                           <div className="truncate" title={silo.nome}>
                             {silo.nome}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600" style={{ width: '130px' }}>
+                        <td className="px-3 py-2 text-xs text-gray-600">
                           {getTipoLabel(silo.tipoSilo)}
                         </td>
-                        <td className="px-4 py-3" style={{ width: '130px' }}>
+                        <td className="px-3 py-2">
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
                               silo.integrado
                                 ? "bg-green-100 text-green-800"
                                 : "bg-gray-100 text-gray-800"
@@ -431,45 +431,47 @@ const SiloListTab = () => {
                             )}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 font-mono" style={{ width: '200px' }}>
+                        <td className="px-3 py-2 text-xs text-gray-600 font-mono">
                           <div className="truncate" title={silo.dispositivo || "-"}>
-                            {silo.dispositivo || "-"}
+                            {silo.dispositivo ? `${silo.dispositivo.substring(0, 12)}...` : "-"}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm font-mono text-gray-600" style={{ width: '160px' }}>
+                        <td className="px-3 py-2 text-xs font-mono text-gray-600">
                           <div className="truncate" title={silo.macAddress || "-"}>
-                            {silo.macAddress || "-"}
+                            {silo.macAddress ? silo.macAddress.substring(12) : "-"}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap" style={{ width: '100px' }}>
-                          <button
-                            onClick={() => handleEdit(silo)}
-                            disabled={processando}
-                            className="text-blue-600 hover:text-blue-800 transition inline-flex items-center disabled:opacity-50 mr-2"
-                            title="Editar"
-                          >
-                            <PencilIcon className="h-5 w-5" />
-                          </button>
-                          
-                          {silo.integrado && (
+                        <td className="px-3 py-2 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1">
                             <button
-                              onClick={() => handleDesintegrarClick(silo)}
+                              onClick={() => handleEdit(silo)}
                               disabled={processando}
-                              className="text-orange-600 hover:text-orange-800 transition inline-flex items-center disabled:opacity-50 mr-2"
-                              title="Desintegrar"
+                              className="text-blue-600 hover:text-blue-800 transition disabled:opacity-50"
+                              title="Editar"
                             >
-                              <LinkSlashIcon className="h-5 w-5" />
+                              <PencilIcon className="h-4 w-4" />
                             </button>
-                          )}
-                          
-                          <button
-                            onClick={() => handleDeleteClick(silo)}
-                            disabled={processando}
-                            className="text-red-600 hover:text-red-800 transition inline-flex items-center disabled:opacity-50"
-                            title="Deletar"
-                          >
-                            <TrashIcon className="h-5 w-5" />
-                          </button>
+                            
+                            {silo.integrado && (
+                              <button
+                                onClick={() => handleDesintegrarClick(silo)}
+                                disabled={processando}
+                                className="text-orange-600 hover:text-orange-800 transition disabled:opacity-50"
+                                title="Desintegrar"
+                              >
+                                <LinkSlashIcon className="h-4 w-4" />
+                              </button>
+                            )}
+                            
+                            <button
+                              onClick={() => handleDeleteClick(silo)}
+                              disabled={processando}
+                              className="text-red-600 hover:text-red-800 transition disabled:opacity-50"
+                              title="Deletar"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </>
                     )}
