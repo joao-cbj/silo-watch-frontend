@@ -12,6 +12,7 @@ import {
 import logo from "../assets/silo-watch-logo.png";
 import AccountTab from "./settings/tabs/AccountTab";
 import SecurityTab from "./settings/tabs/SecurityTab";
+import MultifactorTab from "./settings/tabs/MultifactorTab";
 
 const SettingsWindow = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState(null);
@@ -66,7 +67,7 @@ const SettingsWindow = ({ onClose }) => {
       id: "multifactor",
       label: "Autenticação Multifator",
       icon: ShieldCheckIcon,
-      enabled: false,
+      enabled: true, 
     },
     {
       id: "preferences",
