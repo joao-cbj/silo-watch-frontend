@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import {
   UsersIcon,
   XMarkIcon,
-  ShieldCheckIcon,
-  ClipboardDocumentListIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/outline";
 import logo from "../assets/silo-watch-logo.png";
@@ -30,10 +28,6 @@ const UsersWindow = ({ onClose }) => {
     switch (activeTab) {
       case "userlist":
         return <UserListTab />;
-      case "permissions":
-        return <PermissionsTab />;
-      case "logs":
-        return <LogsTab />;
       default:
         return null;
     }
@@ -45,18 +39,6 @@ const UsersWindow = ({ onClose }) => {
       label: "Lista de Usuários",
       icon: ListBulletIcon,
       enabled: true,
-    },
-    {
-      id: "permissions",
-      label: "Gerenciar Permissões",
-      icon: ShieldCheckIcon,
-      enabled: false,
-    },
-    {
-      id: "logs",
-      label: "Logs de Atividades",
-      icon: ClipboardDocumentListIcon,
-      enabled: false,
     },
   ];
 
@@ -135,7 +117,6 @@ const UsersWindow = ({ onClose }) => {
           {/* Footer com versão */}
           <div className="px-5 py-3 border-t border-blue-700/30 text-xs text-blue-200">
             <p>Versão 1.0.0</p>
-            <p className="mt-1 opacity-70">Apenas Administradores</p>
           </div>
         </div>
 
