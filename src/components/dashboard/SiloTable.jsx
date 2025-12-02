@@ -78,7 +78,7 @@ const SiloTable = ({ silos }) => {
                   <div className="flex items-center">
                     <FunnelIcon className="h-5 w-5 text-gray-600 mr-2" />
                     <span className="text-sm font-medium text-gray-900">
-                      {silo.dispositivo}
+                      {silo.nome}
                     </span>
                   </div>
                 </td>

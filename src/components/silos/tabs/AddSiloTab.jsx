@@ -149,7 +149,7 @@ const AddSiloTab = ({ onSiloCreated }) => {
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <strong>💡 Dica:</strong> Após cadastrar o silo, você pode integrá-lo
-            com um dispositivo ESP32 na aba <strong>"Integrações ESP32"</strong>.
+            com um dispositivo na aba <strong>"Integrações"</strong>.
           </p>
         </div>
       </form>

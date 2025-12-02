@@ -63,7 +63,7 @@ const SiloListTab = () => {
         setSilos((prev) => prev.filter((s) => s._id !== silo._id));
         
         if (response.data.dadosDeletados > 0) {
-          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.\n${silo.integrado ? 'Pressione o botão do ESP32 por 5 segundos para resetar.' : ''}`);
+          alert(`✓ Silo deletado com sucesso!\n${response.data.dadosDeletados} leituras também foram removidas.\n${silo.integrado ? 'Pressione o botão do dispositivo por 5 segundos para resetar.' : ''}`);
         } else {
           alert("✓ Silo deletado com sucesso!");
         }
@@ -194,7 +194,7 @@ const SiloListTab = () => {
                     ⚠️ Silo integrado!
                   </p>
                   <p className="text-xs text-red-700 mt-1">
-                    Leituras serão excluídas. Pressione botão do ESP32 por <strong>5s</strong>.
+                    Leituras serão excluídas. Pressione botão do dispositivo por <strong>5s</strong>.
                   </p>
                 </div>
               )}
@@ -232,7 +232,7 @@ const SiloListTab = () => {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Confirmar Desintegração
                 </h3>
-                <p className="text-xs text-gray-500">Desvincular ESP32</p>
+                <p className="text-xs text-gray-500">Desvincular</p>
               </div>
             </div>
 
@@ -247,7 +247,7 @@ const SiloListTab = () => {
                 </p>
                 <ul className="text-xs text-blue-700 space-y-0.5 list-disc list-inside">
                   <li>Desvinculado no sistema</li>
-                  <li>Pressione botão ESP32 por <strong>5s</strong></li>
+                  <li>Pressione botão dispositivo por <strong>5s</strong></li>
                   <li>Ficará em modo SETUP</li>
                   <li>Dados históricos mantidos</li>
                 </ul>

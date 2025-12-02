@@ -62,7 +62,7 @@ const SilosWindow = ({ onClose }) => {
     },
     {
       id: "integration",
-      label: "Integrações ESP32",
+      label: "Integrações",
       icon: LinkIcon,
       enabled: true,
     },

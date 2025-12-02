@@ -146,7 +146,7 @@ const DashboardPage = () => {
               <div className="mt-4 text-xs text-gray-500">
                 <p>Para resolver, vá em <strong>Gerenciar Silos → Adicionar Silo</strong> e:</p>
                 <p>1. Cadastre um novo silo</p>
-                <p>2. Integre o silo com um dispositivo ESP32</p>
+                <p>2. Integre o silo com um dispositivo</p>
                 <p>3. Aguarde o dispositivo para enviar os primeiros dados</p>
               </div>
             </div>

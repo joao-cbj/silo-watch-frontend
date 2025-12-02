@@ -182,7 +182,7 @@ const IntegrationTab = () => {
         </button>
         {!gatewayStatus?.online && (
           <p className="text-sm text-red-600 mt-2">
-            Gateway offline. Verifique a conexão do ESP32.
+            Gateway offline. Verifique a conexão.
           </p>
         )}
       </div>

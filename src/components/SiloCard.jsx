@@ -22,7 +22,7 @@ const SiloCard = ({ silo }) => {
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden w-[150px] h-[150px] flex flex-col">
       {/* Header */}
       <div className="bg-gray-800 px-1.5 py-1 text-center">
-        <h3 className="text-[10px] font-semibold text-white truncate">{silo.dispositivo}</h3>
+        <h3 className="text-[10px] font-semibold text-white truncate">{silo.nome}</h3>
       </div>
 
       {/* Content */}
