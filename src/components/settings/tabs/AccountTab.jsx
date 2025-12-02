@@ -69,7 +69,16 @@ const AccountTab = () => {
           <UserCircleIcon className="h-12 w-12 text-white" />
         </div>
         <div className="ml-4">
-          <h3 className="text-xl font-semibold text-gray-800">{user?.nome}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-gray-800">{user?.nome}</h3>
+            <span className={`px-2 py-1 text-xs font-semibold rounded ${
+              user?.tipo === 'admin' 
+                ? 'bg-purple-100 text-purple-700' 
+                : 'bg-blue-100 text-blue-700'
+            }`}>
+              {user?.tipo === 'admin' ? 'Administrador' : 'Operador'}
+            </span>
+          </div>
           <p className="text-sm text-gray-500">{user?.email}</p>
           {user?.createdAt && (
             <p className="text-xs text-gray-400 mt-1">

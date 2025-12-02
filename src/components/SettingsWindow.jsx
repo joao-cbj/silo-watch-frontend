@@ -39,12 +39,6 @@ const SettingsWindow = ({ onClose }) => {
         return <SecurityTab />;
       case "multifactor":
         return <MultifactorTab />;
-      case "preferences":
-        return <PreferencesTab />;
-      case "notifications":
-        return <NotificationsTab />;
-      case "accessibility":
-        return <AccessibilityTab />;
       default:
         return null;
     }
@@ -68,24 +62,6 @@ const SettingsWindow = ({ onClose }) => {
       label: "Autenticação Multifator",
       icon: ShieldCheckIcon,
       enabled: true, 
-    },
-    {
-      id: "preferences",
-      label: "Preferências",
-      icon: AdjustmentsHorizontalIcon,
-      enabled: false,
-    },
-    {
-      id: "notifications",
-      label: "Notificações",
-      icon: BellIcon,
-      enabled: false,
-    },
-    {
-      id: "accessibility",
-      label: "Acessibilidade",
-      icon: EyeIcon,
-      enabled: false,
     },
   ];
 

@@ -54,7 +54,7 @@ const UsersWindow = ({ onClose }) => {
     },
     {
       id: "logs",
-      label: "Logs",
+      label: "Logs de Atividades",
       icon: ClipboardDocumentListIcon,
       enabled: false,
     },
@@ -135,6 +135,7 @@ const UsersWindow = ({ onClose }) => {
           {/* Footer com versão */}
           <div className="px-5 py-3 border-t border-blue-700/30 text-xs text-blue-200">
             <p>Versão 1.0.0</p>
+            <p className="mt-1 opacity-70">Apenas Administradores</p>
           </div>
         </div>
 
@@ -143,7 +144,6 @@ const UsersWindow = ({ onClose }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log("Botão X clicado");
               onClose();
             }}
             className="absolute top-3 right-3 p-2 hover:bg-gray-100 transition rounded-lg z-10"
@@ -169,7 +169,7 @@ const PermissionsTab = () => (
 
 const LogsTab = () => (
   <div className="p-6">
-    <h3 className="text-lg font-semibold">Logs</h3>
+    <h3 className="text-lg font-semibold">Logs de Atividades</h3>
     <p className="text-gray-500 mt-2">Em desenvolvimento...</p>
   </div>
 );

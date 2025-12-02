@@ -64,7 +64,7 @@ const IntegrationTab = () => {
         setDispositivosBLE(response.data.dispositivos || []);
         
         if (response.data.dispositivos.length === 0) {
-          setError("Nenhum dispositivo ESP32 encontrado via BLE. Ligue o silo em modo setup.");
+          setError("Nenhum dispositivo encontrado via Scan. Faça o 'Reset' do dispositivo apertando o botão por 5 segundos.");
         }
       }
     } catch (err) {
@@ -86,7 +86,7 @@ const IntegrationTab = () => {
       });
 
       if (response.data.success) {
-        alert("✓ Silo provisionado via BLE! O ESP32 irá reiniciar.");
+        alert("✓ Silo provisionado via Scan! O dispositivo integrado irá reiniciar.");
         setDispositivosBLE([]);
         await fetchSilos();
       }
@@ -117,7 +117,7 @@ const IntegrationTab = () => {
   return (
     <div className="p-6 h-full overflow-y-auto">
       <h3 className="text-2xl font-bold text-gray-800 mb-2">
-        Integrações ESP32 via MQTT
+        Integrações do dispositivo
       </h3>
       <p className="text-gray-500 text-sm mb-4">
         Provisionamento via MQTT → Gateway → BLE
@@ -137,7 +137,7 @@ const IntegrationTab = () => {
             <span className={`font-medium ${
               gatewayStatus?.online ? 'text-green-800' : 'text-red-800'
             }`}>
-              Gateway ESP32: {gatewayStatus?.online ? 'Online' : 'Offline'}
+              Gateway: {gatewayStatus?.online ? 'Online' : 'Offline'}
             </span>
             {gatewayStatus?.online && (
               <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
@@ -164,9 +164,9 @@ const IntegrationTab = () => {
       {/* Informação */}
       <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800">
-          <strong>💡 Como funciona:</strong> Clique em "Escanear BLE" para
+          <strong>💡 Como funciona:</strong> Clique em "Escanear" para
           o Gateway buscar dispositivos próximos. Selecione o silo e clique
-          em "Integrar" para provisionar via BLE local.
+          em "Integrar" para realizar a integração.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ const IntegrationTab = () => {
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition font-medium"
         >
           <MagnifyingGlassIcon className={`h-5 w-5 ${scanning ? 'animate-pulse' : ''}`} />
-          {scanning ? "Escaneando BLE via Gateway..." : "Escanear BLE"}
+          {scanning ? "Escaneando via Gateway..." : "Escanear"}
         </button>
         {!gatewayStatus?.online && (
           <p className="text-sm text-red-600 mt-2">
@@ -192,7 +192,7 @@ const IntegrationTab = () => {
         <div className="mb-8">
           <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <SignalIcon className="h-5 w-5 text-blue-600" />
-            Dispositivos BLE Próximos ({dispositivosBLE.length})
+            Dispositivos Próximos ({dispositivosBLE.length})
           </h4>
           <div className="bg-white border border-gray-200 rounded-lg divide-y">
             {dispositivosBLE.map((device, idx) => (
@@ -266,7 +266,7 @@ const IntegrationTab = () => {
             ))}
           </div>
           <p className="text-sm text-gray-500 mt-3">
-            Clique em "Escanear BLE" para encontrar dispositivos
+            Clique em "Escanear" para encontrar dispositivos
           </p>
         </div>
       )}

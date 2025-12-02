@@ -22,38 +22,43 @@ export const AuthProvider = ({ children }) => {
   // Verifica token salvo no localStorage ao iniciar
   useEffect(() => {
     const checkToken = async () => {
-      
       const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
       
       if (token) {
         try {
           console.log('[Auth Context] Verificando token existente...');
           const response = await api.get('/api/auth/verificar');
           
-          console.log('[Auth Context] ✓ Token válido');
-          setUser(response.data.usuario);
-          setIsAuthenticated(true);
+          if (response.data.success) {
+            console.log('[Auth Context] ✓ Token válido');
+            console.log('[Auth Context] Usuário:', response.data.usuario);
+            
+            const usuario = response.data.usuario;
+            setUser(usuario);
+            setIsAuthenticated(true);
+            
+            // Atualiza localStorage com dados mais recentes
+            localStorage.setItem('user', JSON.stringify(usuario));
+          }
         } catch (error) {
-          console.error('[Auth Context] ✗ Token inválido/expirado');
+          console.error('[Auth Context] ✗ Token inválido/expirado:', error);
           // Token inválido ou expirado - limpa tudo
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          setUser(null);
           setIsAuthenticated(false);
         }
-      } else if (savedUser) {
-        console.log('[Auth Context] Sem token, mas tem usuário salvo');
-        // Se não tem token mas tem usuário salvo, use ele
-        try {
-          const parsedUser = JSON.parse(savedUser);
-          setUser(parsedUser);
-        } catch (e) {
-          console.error('[Auth Context] Erro ao parsear usuário salvo:', e);
-          localStorage.removeItem('user');
-        }
+      } else {
+        // Sem token - limpa qualquer dado residual
+        console.log('[Auth Context] Sem token, limpando dados');
+        localStorage.removeItem('user');
+        setUser(null);
+        setIsAuthenticated(false);
       }
+      
       setLoading(false);
     };
+    
     checkToken();
   }, []);
 
@@ -82,6 +87,13 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Login bem-sucedido
+      if (!response.data.success) {
+        return {
+          success: false,
+          message: response.data.error || 'Erro ao fazer login'
+        };
+      }
+
       const { token, usuario } = response.data;
 
       if (!token) {
@@ -92,13 +104,14 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      // CORRIGIDO: Salva com o nome 'token' (sem 'auth' no prefixo)
+      // Salva token e usuário
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(usuario));
 
       console.log('[Auth Context] ✓ Login bem-sucedido');
       console.log('[Auth Context] Token salvo:', token.substring(0, 20) + '...');
       console.log('[Auth Context] Usuário:', usuario);
+      console.log('[Auth Context] Tipo de usuário:', usuario.tipo);
 
       setUser(usuario);
       setIsAuthenticated(true);
@@ -129,10 +142,13 @@ export const AuthProvider = ({ children }) => {
 
   // Atualiza dados do usuário
   const updateUser = (newUserData) => {
-    // Garante que o id/_id sempre será mantido
+    // Garante que id/_id e tipo sempre serão mantidos
     const updatedUser = { 
-      ...user,           // Mantém todos os dados atuais (incluindo id e _id)
-      ...newUserData     // Sobrescreve apenas os campos novos
+      ...user,           // Mantém todos os dados atuais
+      ...newUserData,    // Sobrescreve apenas os campos novos
+      _id: user._id,     // Força manter _id original
+      id: user.id || user._id, // Força manter id original
+      tipo: newUserData.tipo || user.tipo // Mantém tipo a menos que seja explicitamente atualizado
     };
     
     console.log('[Auth Context] Atualizando usuário:', {
@@ -145,6 +161,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // Verificações de tipo de usuário
+  const isAdmin = () => {
+    return user?.tipo === 'admin';
+  };
+
+  const isOperador = () => {
+    return user?.tipo === 'operador';
+  };
+
   // Provider exportando tudo
   return (
     <AuthContext.Provider
@@ -155,6 +180,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        isAdmin,
+        isOperador,
       }}
     >
       {children}

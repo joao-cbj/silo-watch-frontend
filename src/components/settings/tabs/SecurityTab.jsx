@@ -56,7 +56,7 @@ const SecurityTab = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       const response = await api.put(`/api/usuarios/${userId}/senha`, {

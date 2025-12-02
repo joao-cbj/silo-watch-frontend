@@ -9,7 +9,7 @@ import UsersWindow from './UsersWindow';
 import SilosWindow from './SilosWindow';
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
@@ -50,20 +50,30 @@ const Sidebar = () => {
             <a href="#" className="flex items-center py-3 px-4 bg-gray-900 text-white">
               <ChartPieIcon className="h-6 w-6 mr-3" /> Dashboard
             </a>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setShowSilosModal(true); }}
-              className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
-            >
-              <ArchiveBoxIcon className="h-6 w-6 mr-3" /> Gerenciar Silos
-            </a>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setShowUsersModal(true); }}
-              className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
-            >
-              <UsersIcon className="h-6 w-6 mr-3" /> Gerenciar Usuários
-            </a>
+            
+            {/* Gerenciar Silos - Apenas Admin */}
+            {isAdmin() && (
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); setShowSilosModal(true); }}
+                className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
+              >
+                <ArchiveBoxIcon className="h-6 w-6 mr-3" /> Gerenciar Silos
+              </a>
+            )}
+            
+            {/* Gerenciar Usuários - Apenas Admin */}
+            {isAdmin() && (
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); setShowUsersModal(true); }}
+                className="flex items-center py-3 px-4 hover:bg-gray-700 transition duration-200"
+              >
+                <UsersIcon className="h-6 w-6 mr-3" /> Gerenciar Usuários
+              </a>
+            )}
+            
+            {/* Análises - Todos os usuários */}
             <a
               href="#"
               onClick={handleOpenAnalysis}
@@ -71,6 +81,8 @@ const Sidebar = () => {
             >
               <ChartBarIcon className="h-6 w-6 mr-3" /> Análises
             </a>
+            
+            {/* Configurações - Todos os usuários */}
             <a 
               href="#" 
               onClick={handleOpenConfig}
@@ -80,9 +92,21 @@ const Sidebar = () => {
             </a>
           </nav>
         </div>
+        
         <div className="p-4 border-t border-gray-700">
           <div className="mb-4">
-            <p className="font-semibold">{user?.nome || 'Carregando...'}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-semibold">{user?.nome || 'Carregando...'}</p>
+              {user?.tipo && (
+                <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
+                  user.tipo === 'admin' 
+                    ? 'bg-purple-100 text-purple-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {user.tipo === 'admin' ? 'Admin' : 'Operador'}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">{user?.email || ''}</p>
           </div>
           <button 

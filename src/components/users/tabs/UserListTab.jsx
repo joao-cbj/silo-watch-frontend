@@ -6,10 +6,13 @@ import {
   UserCircleIcon,
   XMarkIcon,
   ExclamationTriangleIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import api from "../../../services/api";
+import { useAuth } from "../../../context/AuthContext";
 
 const UserListTab = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +25,7 @@ const UserListTab = () => {
     nome: "",
     email: "",
     senha: "",
+    tipo: "operador", // Padrão: operador
   });
 
   // Buscar usuários da API
@@ -59,8 +63,23 @@ const UserListTab = () => {
       return;
     }
 
-    if (newUser.senha.length < 6) {
-      setError("A senha deve ter no mínimo 6 caracteres");
+    if (newUser.senha.length < 8) {
+      setError("A senha deve ter no mínimo 8 caracteres");
+      return;
+    }
+
+    // Validação de força da senha
+    const requisitos = {
+      maiuscula: /[A-Z]/.test(newUser.senha),
+      minuscula: /[a-z]/.test(newUser.senha),
+      numero: /[0-9]/.test(newUser.senha),
+      especial: /[!@#$%^&*(),.?":{}|<>]/.test(newUser.senha),
+    };
+
+    const cumpreRequisitos = Object.values(requisitos).filter(Boolean).length >= 4;
+
+    if (!cumpreRequisitos) {
+      setError("A senha deve conter maiúscula, minúscula, número e caractere especial");
       return;
     }
 
@@ -70,7 +89,7 @@ const UserListTab = () => {
       if (response.data.success) {
         setSuccess("Usuário adicionado com sucesso!");
         setShowAddModal(false);
-        setNewUser({ nome: "", email: "", senha: "" });
+        setNewUser({ nome: "", email: "", senha: "", tipo: "operador" });
         fetchUsers();
         setTimeout(() => setSuccess(""), 3000);
       } else {
@@ -85,6 +104,13 @@ const UserListTab = () => {
   const handleDeleteUser = async () => {
     setError("");
     setSuccess("");
+
+    // Impedir que usuário delete a si mesmo
+    if (selectedUser._id === currentUser._id || selectedUser._id === currentUser.id) {
+      setError("Você não pode deletar sua própria conta");
+      setShowDeleteModal(false);
+      return;
+    }
 
     try {
       const response = await api.delete(`/api/usuarios/${selectedUser._id}`);
@@ -183,10 +209,32 @@ const UserListTab = () => {
                 className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors duration-150"
               >
                 <div className="flex items-center gap-4">
-                  <UserCircleIcon className="h-10 w-10 text-gray-400" />
+                  <div className={`p-2 rounded-full ${
+                    user.tipo === 'admin' ? 'bg-purple-100' : 'bg-blue-100'
+                  }`}>
+                    {user.tipo === 'admin' ? (
+                      <ShieldCheckIcon className="h-6 w-6 text-purple-600" />
+                    ) : (
+                      <UserCircleIcon className="h-6 w-6 text-blue-600" />
+                    )}
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-800">{user.nome}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-800">{user.nome}</p>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
+                        user.tipo === 'admin' 
+                          ? 'bg-purple-100 text-purple-700' 
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {user.tipo === 'admin' ? 'Administrador' : 'Operador'}
+                      </span>
+                    </div>
                     <p className="text-sm text-gray-500">{user.email}</p>
+                    {user.createdAt && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Criado em {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -196,8 +244,17 @@ const UserListTab = () => {
                     setShowDeleteModal(true);
                     setError("");
                   }}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
-                  title="Deletar usuário"
+                  disabled={user._id === currentUser._id || user._id === currentUser.id}
+                  className={`p-2 rounded-lg transition-colors duration-150 ${
+                    user._id === currentUser._id || user._id === currentUser.id
+                      ? 'text-gray-300 cursor-not-allowed'
+                      : 'text-red-600 hover:bg-red-50'
+                  }`}
+                  title={
+                    user._id === currentUser._id || user._id === currentUser.id
+                      ? "Você não pode deletar sua própria conta"
+                      : "Deletar usuário"
+                  }
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
@@ -273,6 +330,25 @@ const UserListTab = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de Usuário *
+                </label>
+                <select
+                  value={newUser.tipo}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, tipo: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="operador">Operador</option>
+                  <option value="admin">Administrador</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Administradores têm acesso completo ao sistema
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Senha *
                 </label>
                 <input
@@ -282,10 +358,10 @@ const UserListTab = () => {
                     setNewUser({ ...newUser, senha: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  A senha deve ter no mínimo 6 caracteres
+                  Deve conter maiúscula, minúscula, número e caractere especial
                 </p>
               </div>
             </div>
@@ -315,7 +391,7 @@ const UserListTab = () => {
 
       {/* Modal Confirmar Exclusão */}
       {showDeleteModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => setShowDeleteModal(false)}
@@ -326,7 +402,10 @@ const UserListTab = () => {
             </h3>
             <p className="text-gray-600 mb-4">
               Tem certeza que deseja excluir o usuário{" "}
-              <span className="font-semibold">{selectedUser.nome}</span>?
+              <span className="font-semibold">{selectedUser.nome}</span>
+              {selectedUser.tipo === 'admin' && (
+                <span className="text-purple-600"> (Administrador)</span>
+              )}?
             </p>
             <p className="text-sm text-red-600 mb-6">
               Esta ação não pode ser desfeita.

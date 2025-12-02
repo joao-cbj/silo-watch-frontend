@@ -140,14 +140,14 @@ const DashboardPage = () => {
               </p>
               <ul className="text-left text-sm text-gray-600 mt-3 space-y-1 max-w-md mx-auto">
                 <li>• Nenhum silo foi cadastrado ainda</li>
-                <li>• Os silos cadastrados não estão integrados (sem dispositivo ESP32 vinculado)</li>
-                <li>• Os dispositivos ESP32 ainda não enviaram dados</li>
+                <li>• Os silos cadastrados não estão integrados (sem dispositivo vinculado)</li>
+                <li>• Os dispositivos ainda não enviaram dados</li>
               </ul>
               <div className="mt-4 text-xs text-gray-500">
                 <p>Para resolver, vá em <strong>Gerenciar Silos → Adicionar Silo</strong> e:</p>
                 <p>1. Cadastre um novo silo</p>
                 <p>2. Integre o silo com um dispositivo ESP32</p>
-                <p>3. Aguarde o ESP32 enviar os primeiros dados</p>
+                <p>3. Aguarde o dispositivo para enviar os primeiros dados</p>
               </div>
             </div>
           </div>
@@ -156,7 +156,7 @@ const DashboardPage = () => {
             {viewMode === 'simples' ? (
               <>
                 {/* Cards dos Silos - Visão Simples */}
-                <div className="flex flex-wrap gap-3 mb-8">
+                <div className="flex flex-wrap gap-3 mb-[1.3rem]">
                   {silos.map(silo => (
                     <SiloCard 
                       key={silo._id || silo.dispositivo} 
