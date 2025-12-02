@@ -33,7 +33,7 @@ const ReportsTab = ({ activeTab, setActiveTab }) => {
       if (res.data.success) {
         const lista = res.data.data.map((d) => ({
           id: d.dispositivo,
-          nome: d.dispositivo,
+          nome: d.nome,
         }));
         setDispositivos(lista);
         if (lista.length > 0) {

@@ -73,7 +73,7 @@ const TrendTab = () => {
             >
               {dispositivos.map((d) => (
                 <option key={d.dispositivo} value={d.dispositivo}>
-                  {d.dispositivo}
+                  {d.nome}
                 </option>
               ))}
             </select>
